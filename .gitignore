@@ -1,4 +1,6 @@
-.vs/
-obj/
 bin/
-*.user
+obj/
+*.suo
+*.csproj.user
+*.db
+*.json
