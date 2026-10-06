@@ -1,0 +1,25 @@
+# Deployment template only; no resources have been provisioned.
+# Render does not automatically discover a Blueprint nested in deploy/.
+# Select this file explicitly when creating the Blueprint.
+services:
+  - type: web
+    name: amorrp-server
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    dockerfilePath: ./deploy/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health/ready
+    autoDeployTrigger: off
+    envVars:
+      - key: ConnectionStrings__Database
+        sync: false
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+databases:
+  - name: amorrp-database
+    databaseName: amorrp
+    user: amorrp
+    plan: basic-256mb
+    region: frankfurt
+    postgresMajorVersion: "18"

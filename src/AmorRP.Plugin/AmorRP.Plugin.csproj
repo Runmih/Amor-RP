@@ -1,0 +1,13 @@
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+  <PropertyGroup>
+    <AssemblyName>AmorRP</AssemblyName>
+    <RootNamespace>AmorRP.Plugin</RootNamespace>
+    <Version>0.0.1.0</Version>
+    <Description>Roleplay currency and items in closed groups. M0 foundation build.</Description>
+    <PackageProjectUrl>https://github.com/Runmih/Amor-RP</PackageProjectUrl>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../AmorRP.Contracts/AmorRP.Contracts.csproj" />
+  </ItemGroup>
+</Project>

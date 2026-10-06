@@ -1,0 +1,6551 @@
+openapi: 3.0.3
+info:
+  title: Amor RP proposed 1.0 API
+  version: 1.0.0-draft
+  description: Proposed 1.0 contract. M0 implements liveness, readiness and capabilities;
+    other routes are planned. Defaults are provisional; decision register and API guide define rules.
+servers:
+- url: https://api.example.invalid
+  description: Placeholder; configure real trusted backend URL.
+tags:
+- name: Service
+- name: Authentication
+- name: Character
+- name: Groups
+- name: Membership
+- name: Invitations
+- name: Ownership
+- name: Currency
+- name: Categories
+- name: Definitions
+- name: Inventory
+- name: Trading
+- name: History
+- name: Recovery
+- name: Data lifecycle
+- name: Events
+paths:
+  /health/live:
+    get:
+      operationId: getLiveness
+      tags:
+      - Service
+      summary: Process liveness
+      security: []
+      responses:
+        '200':
+          description: Process liveness
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+      x-authorization-policy: Public
+      x-implementation-status: implemented
+  /health/ready:
+    get:
+      operationId: getReadiness
+      tags:
+      - Service
+      summary: Database and startup readiness; failure uses 503
+      security: []
+      responses:
+        '200':
+          description: Database and startup readiness; failure uses 503
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '503':
+          description: Not ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+      x-authorization-policy: Public
+      x-implementation-status: implemented
+  /api/v1/capabilities:
+    get:
+      operationId: getCapabilities
+      tags:
+      - Service
+      summary: Versions, maintenance, types, permissions and public limits
+      security: []
+      responses:
+        '200':
+          description: Versions, maintenance, types, permissions and public limits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Capabilities'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Public
+      x-implementation-status: implemented
+  /api/v1/auth/login-attempts:
+    post:
+      operationId: startLogin
+      tags:
+      - Authentication
+      summary: Start browser character login
+      security:
+      - LoginStart: []
+      responses:
+        '201':
+          description: Start browser character login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartLoginResult'
+          headers:
+            Idempotency-Replayed:
+              schema: &id001
+                type: boolean
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Public bootstrap; secret retry credential; rate limited
+      x-implementation-status: planned
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginStart'
+  /api/v1/auth/login-attempts/{attemptId}:
+    get:
+      operationId: getLoginStatus
+      tags:
+      - Authentication
+      summary: Poll login status without session secrets
+      security:
+      - LoginAttempt: []
+      responses:
+        '200':
+          description: Poll login status without session secrets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginAttemptStatus'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: LoginAttempt
+      x-implementation-status: planned
+      parameters:
+      - name: attemptId
+        in: path
+        required: true
+        schema: &id002
+          type: string
+          format: uuid
+    delete:
+      operationId: cancelLogin
+      tags:
+      - Authentication
+      summary: Cancel own pending login attempt
+      security:
+      - LoginAttempt: []
+      responses:
+        '200':
+          description: Cancel own pending login attempt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: LoginAttempt
+      x-implementation-status: planned
+      parameters:
+      - name: attemptId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+  /api/v1/auth/login-attempts/{attemptId}/exchange:
+    post:
+      operationId: exchangeLogin
+      tags:
+      - Authentication
+      summary: Redeem verified attempt once for session
+      security:
+      - LoginAttempt: []
+      responses:
+        '200':
+          description: Redeem verified attempt once for session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeLoginResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: LoginAttempt
+      x-implementation-status: planned
+      parameters:
+      - name: attemptId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+  /auth/xivauth/callback:
+    get:
+      operationId: xivauthCallback
+      tags:
+      - Authentication
+      summary: Registered browser OAuth callback
+      security: []
+      responses:
+        '200':
+          description: Registered browser OAuth callback
+          content:
+            text/html:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Exact callback; one-use state; provider exchange
+      x-implementation-status: planned
+      parameters:
+      - name: code
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: state
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: error
+        in: query
+        required: false
+        schema:
+          type: string
+      description: HTML status only; no session tokens returned to browser. code or error follows actual
+        provider contract.
+  /api/v1/auth/sessions/refresh:
+    post:
+      operationId: refreshSession
+      tags:
+      - Authentication
+      summary: Rotate refresh credentials and revalidate identity
+      security: []
+      responses:
+        '200':
+          description: Rotate refresh credentials and revalidate identity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshSessionResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Valid refresh credential; replay key protected
+      x-implementation-status: planned
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+  /api/v1/auth/sessions/current:
+    delete:
+      operationId: logout
+      tags:
+      - Authentication
+      summary: Revoke current session and close its event connection
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Revoke current session and close its event connection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Session
+      x-implementation-status: planned
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+  /api/v1/me:
+    get:
+      operationId: getMe
+      tags:
+      - Character
+      summary: Current verified character
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Current verified character
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Session
+      x-implementation-status: planned
+  /api/v1/me/sessions:
+    get:
+      operationId: listSessions
+      tags:
+      - Character
+      summary: Own character sessions
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Own character sessions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionInfoPage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Session
+      x-implementation-status: planned
+      parameters:
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+  /api/v1/me/sessions/{sessionId}:
+    delete:
+      operationId: revokeSession
+      tags:
+      - Character
+      summary: Revoke own character session
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Revoke own character session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Session owner
+      x-implementation-status: planned
+      parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+  /api/v1/groups:
+    get:
+      operationId: listGroups
+      tags:
+      - Groups
+      summary: Current character active groups
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Current character active groups
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupPage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Session
+      x-implementation-status: planned
+      parameters:
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+    post:
+      operationId: createGroup
+      tags:
+      - Groups
+      summary: Create isolated group and defaults within caps
+      security:
+      - Session: []
+      responses:
+        '201':
+          description: Create isolated group and defaults within caps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateGroupResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Session
+      x-implementation-status: planned
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupCreate'
+  /api/v1/groups/join:
+    post:
+      operationId: joinGroup
+      tags:
+      - Groups
+      summary: Accept invitation within membership caps
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Accept invitation within membership caps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinGroupResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Session
+      x-implementation-status: planned
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinGroup'
+  /api/v1/groups/{groupId}:
+    get:
+      operationId: getGroup
+      tags:
+      - Groups
+      summary: Group and own permissions/balance
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Group and own permissions/balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+    patch:
+      operationId: editGroup
+      tags:
+      - Groups
+      summary: Edit group name/description
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Edit group name/description
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditGroupResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupEdit'
+  /api/v1/groups/{groupId}/leave:
+    post:
+      operationId: leaveGroup
+      tags:
+      - Groups
+      summary: Leave; cancel trades and make holdings dormant
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Leave; cancel trades and make holdings dormant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member except owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+  /api/v1/groups/{groupId}/deletion:
+    post:
+      operationId: deleteGroup
+      tags:
+      - Groups
+      summary: Soft delete group with exact-name confirmation
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Soft delete group with exact-name confirmation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupDeletion'
+  /api/v1/groups/{groupId}/policies:
+    get:
+      operationId: getPolicies
+      tags:
+      - Groups
+      summary: Current and next weekly policies
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Current and next weekly policies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupPolicies'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+    put:
+      operationId: editPolicies
+      tags:
+      - Groups
+      summary: Schedule next-week limits
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Schedule next-week limits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditPoliciesResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyEdit'
+  /api/v1/groups/{groupId}/members:
+    get:
+      operationId: listMembers
+      tags:
+      - Membership
+      summary: Consented own-group roster; owner may include dormant members
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Consented own-group roster; owner may include dormant members
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberPage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: includeDormant
+        in: query
+        required: false
+        schema: *id001
+        description: Owner only; others cannot enumerate dormant members.
+  /api/v1/groups/{groupId}/members/{characterId}/capabilities:
+    put:
+      operationId: setMemberCapabilities
+      tags:
+      - Membership
+      summary: Replace individually granted actions
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Replace individually granted actions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetMemberCapabilitiesResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner; target active nonowner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: characterId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberCapabilities'
+  /api/v1/groups/{groupId}/members/{characterId}/trade-restriction:
+    put:
+      operationId: setTradeRestriction
+      tags:
+      - Membership
+      summary: Restrict/restore both trade directions and cancel affected trades
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Restrict/restore both trade directions and cancel affected trades
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetTradeRestrictionResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner; active nonowner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: characterId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberRestriction'
+  /api/v1/groups/{groupId}/members/{characterId}/removal:
+    post:
+      operationId: removeMember
+      tags:
+      - Membership
+      summary: Remove/block member and cancel affected trades
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Remove/block member and cancel affected trades
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveMemberResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner; active nonowner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: characterId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberRemoval'
+  /api/v1/groups/{groupId}/members/{characterId}/restoration:
+    post:
+      operationId: restoreMember
+      tags:
+      - Membership
+      summary: Allow blocked character to rejoin; does not grant a slot or permissions
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Allow blocked character to rejoin; does not grant a slot or permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestoreMemberResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner; blocked member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: characterId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+  /api/v1/groups/{groupId}/members/{characterId}/holdings:
+    get:
+      operationId: listAdministrativeHoldings
+      tags:
+      - Membership
+      summary: Minimal holding summaries for authorized removal; no letter bodies
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Minimal holding summaries for authorized removal; no letter bodies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HoldingPage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner or inventory.remove; dormant summaries owner only
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: characterId
+        in: path
+        required: true
+        schema: *id002
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+  /api/v1/groups/{groupId}/members/{characterId}/balances:
+    get:
+      operationId: listAdministrativeBalances
+      tags:
+      - Membership
+      summary: Balances for authorized currency adjustment
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Balances for authorized currency adjustment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalancePage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner or currency.manage; target active
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: characterId
+        in: path
+        required: true
+        schema: *id002
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+  /api/v1/groups/{groupId}/invitations:
+    get:
+      operationId: listInvitations
+      tags:
+      - Invitations
+      summary: Invitation metadata without secret codes
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Invitation metadata without secret codes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvitationPage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+    post:
+      operationId: createInvitation
+      tags:
+      - Invitations
+      summary: Create bounded expiring invitation; return code once
+      security:
+      - Session: []
+      responses:
+        '201':
+          description: Create bounded expiring invitation; return code once
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateInvitationResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvitationCreate'
+  /api/v1/groups/{groupId}/invitations/{invitationId}:
+    delete:
+      operationId: revokeInvitation
+      tags:
+      - Invitations
+      summary: Revoke invitation
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Revoke invitation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: invitationId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+  /api/v1/groups/{groupId}/ownership-transfers:
+    post:
+      operationId: proposeOwnership
+      tags:
+      - Ownership
+      summary: Propose transfer to active member
+      security:
+      - Session: []
+      responses:
+        '201':
+          description: Propose transfer to active member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposeOwnershipResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OwnershipProposal'
+  /api/v1/groups/{groupId}/ownership-transfers/{transferId}:
+    get:
+      operationId: getOwnershipTransfer
+      tags:
+      - Ownership
+      summary: Read transfer status
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Read transfer status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OwnershipTransfer'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Current owner or proposed recipient
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: transferId
+        in: path
+        required: true
+        schema: *id002
+  /api/v1/groups/{groupId}/ownership-transfers/{transferId}/accept:
+    post:
+      operationId: acceptOwnership
+      tags:
+      - Ownership
+      summary: Accept pending transfer within owner caps
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Accept pending transfer within owner caps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptOwnershipResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Proposed recipient; active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: transferId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+  /api/v1/groups/{groupId}/ownership-transfers/{transferId}/cancel:
+    post:
+      operationId: cancelOwnership
+      tags:
+      - Ownership
+      summary: Cancel pending transfer
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Cancel pending transfer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelOwnershipResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner or proposed recipient
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: transferId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+  /api/v1/groups/{groupId}/currency:
+    get:
+      operationId: getCurrency
+      tags:
+      - Currency
+      summary: Group currency definition
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Group currency definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Currency'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+    patch:
+      operationId: editCurrency
+      tags:
+      - Currency
+      summary: Rename currency without replacing identity
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Rename currency without replacing identity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditCurrencyResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CurrencyEdit'
+  /api/v1/groups/{groupId}/balances:
+    get:
+      operationId: getOwnBalances
+      tags:
+      - Currency
+      summary: Own available/reserved currency
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Own available/reserved currency
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalancePage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+  /api/v1/groups/{groupId}/currency/adjustments:
+    post:
+      operationId: adjustCurrency
+      tags:
+      - Currency
+      summary: Issue/remove whole-unit currency with reason
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Issue/remove whole-unit currency with reason
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdjustCurrencyResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner or currency.manage; target active
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CurrencyAdjustment'
+  /api/v1/groups/{groupId}/categories:
+    get:
+      operationId: listCategories
+      tags:
+      - Categories
+      summary: Group categories including retired labels
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Group categories including retired labels
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryPage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+    post:
+      operationId: createCategory
+      tags:
+      - Categories
+      summary: Create bounded organizational category
+      security:
+      - Session: []
+      responses:
+        '201':
+          description: Create bounded organizational category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCategoryResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryEdit'
+  /api/v1/groups/{groupId}/categories/{categoryId}:
+    get:
+      operationId: getCategory
+      tags:
+      - Categories
+      summary: Category details and concurrency token
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Category details and concurrency token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: categoryId
+        in: path
+        required: true
+        schema: *id002
+    patch:
+      operationId: editCategory
+      tags:
+      - Categories
+      summary: Edit category without changing item behavior
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Edit category without changing item behavior
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditCategoryResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: categoryId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryEdit'
+  /api/v1/groups/{groupId}/categories/{categoryId}/retirement:
+    post:
+      operationId: retireCategory
+      tags:
+      - Categories
+      summary: Retire category for new content; preserve old holdings
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Retire category for new content; preserve old holdings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetireCategoryResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: categoryId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+  /api/v1/groups/{groupId}/item-definitions:
+    get:
+      operationId: listDefinitions
+      tags:
+      - Definitions
+      summary: Potion definitions with latest revisions
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Potion definitions with latest revisions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefinitionPage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+    post:
+      operationId: createDefinition
+      tags:
+      - Definitions
+      summary: Define potion without issuing copies
+      security:
+      - Session: []
+      responses:
+        '201':
+          description: Define potion without issuing copies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDefinitionResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefinitionWrite'
+  /api/v1/groups/{groupId}/item-definitions/{definitionId}:
+    get:
+      operationId: getDefinition
+      tags:
+      - Definitions
+      summary: Definition revision; latest by default
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Definition revision; latest by default
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Definition'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: definitionId
+        in: path
+        required: true
+        schema: *id002
+      - name: revision
+        in: query
+        required: false
+        schema: &id005
+          type: integer
+          format: int32
+          minimum: 1
+    patch:
+      operationId: reviseDefinition
+      tags:
+      - Definitions
+      summary: Create immutable definition revision
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Create immutable definition revision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviseDefinitionResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: definitionId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefinitionWrite'
+  /api/v1/groups/{groupId}/item-definitions/{definitionId}/retirement:
+    post:
+      operationId: retireDefinition
+      tags:
+      - Definitions
+      summary: Retire production without deleting existing copies
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Retire production without deleting existing copies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetireDefinitionResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: definitionId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+  /api/v1/groups/{groupId}/quotas:
+    get:
+      operationId: getQuotas
+      tags:
+      - Inventory
+      summary: Own current usage, limits, reset time
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Own current usage, limits, reset time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quotas'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+  /api/v1/groups/{groupId}/inventory:
+    get:
+      operationId: listInventory
+      tags:
+      - Inventory
+      summary: Own holding summaries with filters
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Own holding summaries with filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HoldingPage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: typeId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: categoryId
+        in: query
+        required: false
+        schema: *id002
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 100
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - name
+          - type
+          - category
+  /api/v1/groups/{groupId}/inventory/{holdingId}:
+    get:
+      operationId: getHolding
+      tags:
+      - Inventory
+      summary: Own holding and type-specific details
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Own holding and type-specific details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HoldingDetails'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Current holder; active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: holdingId
+        in: path
+        required: true
+        schema: *id002
+  /api/v1/groups/{groupId}/inventory/potions:
+    post:
+      operationId: createPotions
+      tags:
+      - Inventory
+      summary: Spend own potion points to produce copies
+      security:
+      - Session: []
+      responses:
+        '201':
+          description: Spend own potion points to produce copies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePotionsResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner or items.potion.create
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PotionCreate'
+  /api/v1/groups/{groupId}/inventory/letters:
+    post:
+      operationId: createLetter
+      tags:
+      - Inventory
+      summary: Spend own letter allowance to create individual letter
+      security:
+      - Session: []
+      responses:
+        '201':
+          description: Spend own letter allowance to create individual letter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateLetterResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LetterCreate'
+  /api/v1/groups/{groupId}/letters/{letterId}:
+    get:
+      operationId: readLetter
+      tags:
+      - Inventory
+      summary: Read currently owned letter and edit concurrency token
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Read currently owned letter and edit concurrency token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Letter'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Current holder; active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: letterId
+        in: path
+        required: true
+        schema: *id002
+    patch:
+      operationId: editLetter
+      tags:
+      - Inventory
+      summary: Edit untraded, unreserved letter held by its author
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Edit untraded, unreserved letter held by its author
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditLetterResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Author and current holder
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: letterId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: ETag from the current resource GET.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LetterEdit'
+  /api/v1/groups/{groupId}/inventory/{holdingId}/use:
+    post:
+      operationId: useHolding
+      tags:
+      - Inventory
+      summary: Consume one available potion and return literal chat text
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Consume one available potion and return literal chat text
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UseHoldingResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Current holder; active member; potion type
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: holdingId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsumptionRequest'
+  /api/v1/groups/{groupId}/inventory/{holdingId}/discard:
+    post:
+      operationId: discardHolding
+      tags:
+      - Inventory
+      summary: Discard own available quantity; no quota refund
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Discard own available quantity; no quota refund
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscardHoldingResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Current holder; active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: holdingId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscardRequest'
+  /api/v1/groups/{groupId}/inventory/removals:
+    post:
+      operationId: removeHolding
+      tags:
+      - Inventory
+      summary: Remove another active member holding with reason
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Remove another active member holding with reason
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveHoldingResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner or inventory.remove; target active
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryRemoval'
+  /api/v1/groups/{groupId}/trades:
+    get:
+      operationId: listTrades
+      tags:
+      - Trading
+      summary: Own trades, pending invitations and recent outcomes
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Own trades, pending invitations and recent outcomes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TradePage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Participant; active member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: state
+        in: query
+        required: false
+        schema:
+          type: string
+    post:
+      operationId: startTrade
+      tags:
+      - Trading
+      summary: Invite same-group unrestricted character to trade
+      security:
+      - Session: []
+      responses:
+        '201':
+          description: Invite same-group unrestricted character to trade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartTradeResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active unrestricted member; same for target
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TradeCreate'
+  /api/v1/groups/{groupId}/trades/{tradeId}:
+    get:
+      operationId: getTrade
+      tags:
+      - Trading
+      summary: Read own trade and recover outcome
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Read own trade and recover outcome
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trade'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Participant; terminal status remains available after removal
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: tradeId
+        in: path
+        required: true
+        schema: *id002
+  /api/v1/groups/{groupId}/trades/{tradeId}/accept:
+    post:
+      operationId: acceptTrade
+      tags:
+      - Trading
+      summary: Recipient accepts unexpired invitation
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Recipient accepts unexpired invitation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptTradeResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Recipient; both active/unrestricted
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: tradeId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TradeRevisionRequest'
+  /api/v1/groups/{groupId}/trades/{tradeId}/offers/mine:
+    put:
+      operationId: setTradeOffer
+      tags:
+      - Trading
+      summary: Replace own offer; reserve resources; reset confirmations
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Replace own offer; reserve resources; reset confirmations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetTradeOfferResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Participant; both active/unrestricted
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: tradeId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TradeOfferWrite'
+  /api/v1/groups/{groupId}/trades/{tradeId}/confirm:
+    post:
+      operationId: confirmTrade
+      tags:
+      - Trading
+      summary: Confirm exact revision; second confirmation atomically completes
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Confirm exact revision; second confirmation atomically completes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmTradeResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Participant; both active/unrestricted
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: tradeId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TradeRevisionRequest'
+  /api/v1/groups/{groupId}/trades/{tradeId}/cancel:
+    post:
+      operationId: cancelTrade
+      tags:
+      - Trading
+      summary: Cancel/decline own trade and release reservations
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Cancel/decline own trade and release reservations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelTradeResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Participant; never undo completed trade
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: tradeId
+        in: path
+        required: true
+        schema: *id002
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TradeCancel'
+  /api/v1/groups/{groupId}/history:
+    get:
+      operationId: getHistory
+      tags:
+      - History
+      summary: Personal group operation history
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Personal group operation history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryEntryPage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Character participant; own history after leaving
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+  /api/v1/groups/{groupId}/audit:
+    get:
+      operationId: getAudit
+      tags:
+      - History
+      summary: Administrative group history without private content
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Administrative group history without private content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryEntryPage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema: *id002
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 50
+  /api/v1/operations/{operationId}:
+    get:
+      operationId: getOperation
+      tags:
+      - Recovery
+      summary: Own operation receipt after ambiguous request
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Own operation receipt after ambiguous request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Actor or involved trade participant
+      x-implementation-status: planned
+      parameters:
+      - name: operationId
+        in: path
+        required: true
+        schema: *id002
+  /api/v1/operation-keys/{idempotencyKey}:
+    get:
+      operationId: lookupOperationKey
+      tags:
+      - Recovery
+      summary: Own key status; unknown key returns 404
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Own key status; unknown key returns 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationLookup'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Authenticated actor only; excludes login/refresh keys
+      x-implementation-status: planned
+      parameters:
+      - name: idempotencyKey
+        in: path
+        required: true
+        schema:
+          type: string
+          description: UUIDv7 operation key
+          format: uuid
+  /api/v1/me/export-requests:
+    post:
+      operationId: requestExport
+      tags:
+      - Data lifecycle
+      summary: Request own-character export for operator workflow
+      security:
+      - Session: []
+      responses:
+        '202':
+          description: Request own-character export for operator workflow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestExportResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Character; rate limited
+      x-implementation-status: planned
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+  /api/v1/me/deletion-requests:
+    post:
+      operationId: requestDeletion
+      tags:
+      - Data lifecycle
+      summary: Request deletion; resolve group ownership first
+      security:
+      - Session: []
+      responses:
+        '202':
+          description: Request deletion; resolve group ownership first
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestDeletionResult'
+          headers:
+            Idempotency-Replayed:
+              schema: *id001
+              description: True means original response; never automatically repeat chat.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Character; recent reauthentication
+      x-implementation-status: planned
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; see API guide for replay and age rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeletionRequest'
+  /api/v1/me/data-requests/{requestId}:
+    get:
+      operationId: getDataRequest
+      tags:
+      - Data lifecycle
+      summary: Read own export/deletion request status
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Read own export/deletion request status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataRequest'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Request owner
+      x-implementation-status: planned
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema: *id002
+  /api/v1/me/data-requests/{requestId}/download:
+    get:
+      operationId: downloadExport
+      tags:
+      - Data lifecycle
+      summary: Stream approved unexpired own-character JSON export
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Stream approved unexpired own-character JSON export
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharacterExport'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Resource concurrency token where versioned.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Request owner; ready export only
+      x-implementation-status: planned
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema: *id002
+  /api/v1/events:
+    get:
+      operationId: subscribeEvents
+      tags:
+      - Events
+      summary: Upgrade authenticated connection to recipient-filtered WSS events
+      security:
+      - Session: []
+      responses:
+        '101':
+          description: Upgrade authenticated connection to recipient-filtered WSS events
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+        '426':
+          description: WebSocket upgrade required
+      x-authorization-policy: Session; active group member
+      x-implementation-status: planned
+      parameters:
+      - name: groupId
+        in: query
+        required: true
+        schema: *id002
+      - name: afterSequence
+        in: query
+        required: false
+        schema:
+          type: string
+          pattern: ^[0-9]+$
+      description: HTTP description of WebSocket upgrade. Message protocol is in api.md; ordinary GET
+        without upgrade returns 426.
+components:
+  securitySchemes:
+    Session:
+      type: http
+      scheme: bearer
+      description: Opaque character-bound access credential.
+    LoginStart:
+      type: apiKey
+      in: header
+      name: X-Login-Request-Credential
+      description: Client-generated 256-bit random secret for this login start/retry only. Does not authenticate
+        a character.
+    LoginAttempt:
+      type: apiKey
+      in: header
+      name: X-Login-Attempt-Credential
+      description: Secret bound to one short-lived attempt; not a session.
+  responses:
+    Problem:
+      description: RFC 9457-style error; see code/status conventions in API guide.
+      headers:
+        Retry-After:
+          schema:
+            type: string
+          description: Present for rate limit/service unavailable when appropriate.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+        title: &id003
+          type: string
+          description: Plain text; named service limits and Unicode text-element checks also apply.
+        status:
+          type: integer
+          format: int32
+        detail: *id003
+        code: *id003
+        requestId: *id003
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: *id003
+      required:
+      - type
+      - title
+      - status
+      - code
+      - requestId
+      additionalProperties: true
+    Character:
+      type: object
+      properties:
+        id: *id002
+        displayName: &id004
+          type: string
+          minLength: 1
+          maxLength: 80
+        homeWorldId:
+          type: string
+        homeWorldName: *id004
+        verifiedAt: &id006
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - active
+          - deletion_pending
+      required:
+      - id
+      - displayName
+      - homeWorldId
+      - homeWorldName
+      - verifiedAt
+      - status
+      additionalProperties: true
+    PublicLimits:
+      type: object
+      properties:
+        ownedGroups:
+          type: integer
+          format: int32
+          minimum: 1
+        joinedGroups:
+          type: integer
+          format: int32
+          minimum: 1
+        defaultLettersPerWeek:
+          type: integer
+          format: int32
+          minimum: 0
+        defaultPotionPoints:
+          type: integer
+          format: int32
+          minimum: 0
+        chatMessageTextElements:
+          type: integer
+          format: int32
+          minimum: 1
+        letterTitleTextElements:
+          type: integer
+          format: int32
+          minimum: 1
+        letterBodyTextElements:
+          type: integer
+          format: int32
+          minimum: 1
+        maxPageSize:
+          type: integer
+          format: int32
+          minimum: 1
+        maxHoldingsPerCharacterGroup:
+          type: integer
+          format: int32
+          minimum: 1
+        maxTradeLinesPerSide:
+          type: integer
+          format: int32
+          minimum: 1
+        maxCreationQuantity:
+          type: integer
+          format: int32
+          minimum: 1
+        tradeLifetimeSeconds:
+          type: integer
+          format: int32
+          minimum: 1
+        resetWeekdayUtc:
+          type: string
+        resetTimeUtc:
+          type: string
+        maxRequestBytes:
+          type: integer
+          format: int32
+          minimum: 1
+      required:
+      - ownedGroups
+      - joinedGroups
+      - defaultLettersPerWeek
+      - defaultPotionPoints
+      - chatMessageTextElements
+      - letterTitleTextElements
+      - letterBodyTextElements
+      - maxPageSize
+      - maxHoldingsPerCharacterGroup
+      - maxTradeLinesPerSide
+      - maxCreationQuantity
+      - tradeLifetimeSeconds
+      - resetWeekdayUtc
+      - resetTimeUtc
+      - maxRequestBytes
+      additionalProperties: true
+    ItemTypeInfo:
+      type: object
+      properties:
+        id: *id003
+        typeDataVersion: *id005
+        canUse: *id001
+        stackable: *id001
+      required:
+      - id
+      - typeDataVersion
+      - canUse
+      - stackable
+      additionalProperties: true
+    Capabilities:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+        serverVersion:
+          type: string
+        minimumClientVersion:
+          type: string
+        maintenance: *id001
+        message: *id003
+        supportedTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemTypeInfo'
+        grantableCapabilities:
+          type: array
+          items:
+            type: string
+        chatDestinationKinds:
+          type: array
+          items:
+            type: string
+        limits:
+          $ref: '#/components/schemas/PublicLimits'
+      required:
+      - apiVersion
+      - serverVersion
+      - minimumClientVersion
+      - maintenance
+      - message
+      - supportedTypes
+      - grantableCapabilities
+      - chatDestinationKinds
+      - limits
+      additionalProperties: true
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - ok
+          - unavailable
+      required:
+      - status
+      additionalProperties: true
+    LoginStart:
+      type: object
+      properties:
+        displayName: *id004
+        homeWorldId:
+          type: string
+          minLength: 1
+      required:
+      - displayName
+      - homeWorldId
+      additionalProperties: false
+    LoginAttemptCreated:
+      type: object
+      properties:
+        attemptId: *id002
+        authorizationUrl:
+          type: string
+          format: uri
+        attemptCredential:
+          type: string
+          description: 'Secret: header only after creation, never logged.'
+        expiresAt: *id006
+        pollIntervalSeconds:
+          type: integer
+          format: int32
+          minimum: 1
+      required:
+      - attemptId
+      - authorizationUrl
+      - attemptCredential
+      - expiresAt
+      - pollIntervalSeconds
+      additionalProperties: true
+    LoginAttemptStatus:
+      type: object
+      properties:
+        attemptId: *id002
+        status:
+          type: string
+          enum:
+          - pending
+          - verified
+          - failed
+          - cancelled
+          - expired
+        expiresAt: *id006
+        failureCode:
+          type: string
+          nullable: true
+      required:
+      - attemptId
+      - status
+      - expiresAt
+      - failureCode
+      additionalProperties: true
+      description: No session credentials in status response.
+    SessionTokens:
+      type: object
+      properties:
+        sessionId: *id002
+        character:
+          $ref: '#/components/schemas/Character'
+        accessToken:
+          type: string
+        accessExpiresAt: *id006
+        refreshToken:
+          type: string
+        refreshExpiresAt: *id006
+      required:
+      - sessionId
+      - character
+      - accessToken
+      - accessExpiresAt
+      - refreshToken
+      - refreshExpiresAt
+      additionalProperties: true
+    RefreshRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          minLength: 1
+      required:
+      - refreshToken
+      additionalProperties: false
+    SessionInfo:
+      type: object
+      properties:
+        id: *id002
+        createdAt: *id006
+        lastUsedAt: *id006
+        expiresAt: *id006
+        isCurrent: *id001
+      required:
+      - id
+      - createdAt
+      - lastUsedAt
+      - expiresAt
+      - isCurrent
+      additionalProperties: true
+    Currency:
+      type: object
+      properties:
+        id: *id002
+        groupId: *id002
+        name: *id004
+        symbol:
+          type: string
+          maxLength: 16
+        version: *id005
+      required:
+      - id
+      - groupId
+      - name
+      - symbol
+      - version
+      additionalProperties: true
+    Balance:
+      type: object
+      properties:
+        currencyId: *id002
+        characterId: *id002
+        owned: &id007
+          type: string
+          description: Nonnegative whole units, within signed 64-bit range.
+          pattern: ^(0|[1-9][0-9]*)$
+          maxLength: 19
+        reserved: *id007
+        available: *id007
+        version: *id005
+      required:
+      - currencyId
+      - characterId
+      - owned
+      - reserved
+      - available
+      - version
+      additionalProperties: true
+    CurrencyEdit:
+      type: object
+      properties:
+        name: *id004
+        symbol:
+          type: string
+          maxLength: 16
+      required:
+      - name
+      - symbol
+      additionalProperties: false
+    CurrencyAdjustment:
+      type: object
+      properties:
+        targetCharacterId: *id002
+        delta:
+          type: string
+          description: Nonzero signed whole units, checked against signed 64-bit range.
+          pattern: ^-?[1-9][0-9]*$
+          maxLength: 20
+        reason: &id008
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - targetCharacterId
+      - delta
+      - reason
+      additionalProperties: false
+    Group:
+      type: object
+      properties:
+        id: *id002
+        name: *id004
+        description: *id003
+        ownerCharacterId: *id002
+        version: *id005
+        currency:
+          $ref: '#/components/schemas/Currency'
+        myCapabilities:
+          type: array
+          items:
+            type: string
+        myTradingRestricted: *id001
+        myBalance:
+          $ref: '#/components/schemas/Balance'
+        pendingOwnershipTransferId:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - id
+      - name
+      - description
+      - ownerCharacterId
+      - version
+      - currency
+      - myCapabilities
+      - myTradingRestricted
+      - myBalance
+      - pendingOwnershipTransferId
+      additionalProperties: true
+    GroupCreate:
+      type: object
+      properties:
+        name: *id004
+        description:
+          type: string
+          maxLength: 2000
+        currencyName: *id004
+        currencySymbol:
+          type: string
+          maxLength: 16
+        weeklyPotionPoints:
+          type: integer
+          format: int32
+          minimum: 0
+        weeklyLetters:
+          type: integer
+          format: int32
+          minimum: 0
+          default: 5
+      required:
+      - name
+      - description
+      - currencyName
+      - currencySymbol
+      - weeklyPotionPoints
+      - weeklyLetters
+      additionalProperties: false
+    GroupEdit:
+      type: object
+      properties:
+        name: *id004
+        description:
+          type: string
+          maxLength: 2000
+      required:
+      - name
+      - description
+      additionalProperties: false
+    GroupDeletion:
+      type: object
+      properties:
+        confirmName: *id004
+      required:
+      - confirmName
+      additionalProperties: false
+    JoinGroup:
+      type: object
+      properties:
+        invitationCode:
+          type: string
+          minLength: 1
+        acceptMemberVisibility:
+          type: boolean
+          enum:
+          - true
+      required:
+      - invitationCode
+      - acceptMemberVisibility
+      additionalProperties: false
+    PolicyValues:
+      type: object
+      properties:
+        potionPoints:
+          type: integer
+          format: int32
+          minimum: 0
+        letters:
+          type: integer
+          format: int32
+          minimum: 0
+      required:
+      - potionPoints
+      - letters
+      additionalProperties: true
+    GroupPolicies:
+      type: object
+      properties:
+        groupId: *id002
+        version: *id005
+        currentPeriodStart: *id006
+        nextResetAt: *id006
+        current:
+          $ref: '#/components/schemas/PolicyValues'
+        next:
+          $ref: '#/components/schemas/PolicyValues'
+      required:
+      - groupId
+      - version
+      - currentPeriodStart
+      - nextResetAt
+      - current
+      - next
+      additionalProperties: true
+    PolicyEdit:
+      type: object
+      properties:
+        potionPoints:
+          type: integer
+          format: int32
+          minimum: 0
+        letters:
+          type: integer
+          format: int32
+          minimum: 0
+      required:
+      - potionPoints
+      - letters
+      additionalProperties: false
+      description: Schedules values for next server weekly period; no client-selected effective date.
+    Member:
+      type: object
+      properties:
+        character:
+          $ref: '#/components/schemas/Character'
+        status:
+          type: string
+          enum:
+          - active
+          - dormant
+          - blocked
+        isOwner: *id001
+        capabilities:
+          type: array
+          items:
+            type: string
+        tradingRestricted: *id001
+        version: *id005
+        etag:
+          type: string
+          description: Server-supplied member concurrency token, also available in roster rows.
+      required:
+      - character
+      - status
+      - isOwner
+      - capabilities
+      - tradingRestricted
+      - version
+      - etag
+      additionalProperties: true
+    MemberCapabilities:
+      type: object
+      properties:
+        capabilities:
+          type: array
+          items:
+            type: string
+            description: Only server-discovered grantable action IDs.
+      required:
+      - capabilities
+      additionalProperties: false
+    MemberRestriction:
+      type: object
+      properties:
+        restricted: *id001
+        reason:
+          type: string
+          maxLength: 500
+      required:
+      - restricted
+      - reason
+      additionalProperties: false
+    MemberRemoval:
+      type: object
+      properties:
+        reason: *id008
+      required:
+      - reason
+      additionalProperties: false
+    InvitationCreate:
+      type: object
+      properties:
+        expiresInHours:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 168
+        maxUses:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+      required:
+      - expiresInHours
+      - maxUses
+      additionalProperties: false
+    Invitation:
+      type: object
+      properties:
+        id: *id002
+        groupId: *id002
+        expiresAt: *id006
+        maxUses:
+          type: integer
+          format: int32
+        used:
+          type: integer
+          format: int32
+        revoked: *id001
+      required:
+      - id
+      - groupId
+      - expiresAt
+      - maxUses
+      - used
+      - revoked
+      additionalProperties: true
+    InvitationCreated:
+      type: object
+      properties:
+        invitation:
+          $ref: '#/components/schemas/Invitation'
+        invitationCode:
+          type: string
+          description: Secret returned once; stored as hash.
+      required:
+      - invitation
+      - invitationCode
+      additionalProperties: true
+    OwnershipProposal:
+      type: object
+      properties:
+        recipientCharacterId: *id002
+      required:
+      - recipientCharacterId
+      additionalProperties: false
+    OwnershipTransfer:
+      type: object
+      properties:
+        id: *id002
+        groupId: *id002
+        fromCharacterId: *id002
+        toCharacterId: *id002
+        status:
+          type: string
+          enum:
+          - proposed
+          - accepted
+          - cancelled
+          - expired
+        expiresAt: *id006
+      required:
+      - id
+      - groupId
+      - fromCharacterId
+      - toCharacterId
+      - status
+      - expiresAt
+      additionalProperties: true
+    Category:
+      type: object
+      properties:
+        id: *id002
+        groupId: *id002
+        name: *id004
+        allowedTypeIds:
+          type: array
+          items:
+            type: string
+        retired: *id001
+        version: *id005
+      required:
+      - id
+      - groupId
+      - name
+      - allowedTypeIds
+      - retired
+      - version
+      additionalProperties: true
+    CategoryEdit:
+      type: object
+      properties:
+        name: *id004
+        allowedTypeIds:
+          type: array
+          items:
+            type: string
+      required:
+      - name
+      - allowedTypeIds
+      additionalProperties: false
+    PotionData:
+      type: object
+      properties:
+        creationCost:
+          type: integer
+          format: int32
+          minimum: 1
+        useMessage:
+          type: string
+          description: Literal message. Server enforces discovered 50-text-element default and tested
+            game byte cap.
+      required:
+      - creationCost
+      - useMessage
+      additionalProperties: true
+    Definition:
+      type: object
+      properties:
+        id: *id002
+        groupId: *id002
+        typeId:
+          type: string
+        revision: *id005
+        typeDataVersion: *id005
+        name: *id004
+        categoryId: *id002
+        description: *id003
+        enabled: *id001
+        retired: *id001
+        potion:
+          $ref: '#/components/schemas/PotionData'
+      required:
+      - id
+      - groupId
+      - typeId
+      - revision
+      - typeDataVersion
+      - name
+      - categoryId
+      - description
+      - enabled
+      - retired
+      - potion
+      additionalProperties: true
+      description: 1.0 has owner-authored potion definitions; other future types use versioned typed payloads.
+    PotionDataWrite:
+      type: object
+      properties:
+        creationCost:
+          type: integer
+          format: int32
+          minimum: 1
+        useMessage:
+          type: string
+          description: Literal text, bounded by discovered message limits.
+      required:
+      - creationCost
+      - useMessage
+      additionalProperties: false
+    DefinitionWrite:
+      type: object
+      properties:
+        typeId:
+          type: string
+          description: Only potion supported for definitions in 1.0.
+        name: *id004
+        categoryId: *id002
+        description:
+          type: string
+          maxLength: 2000
+        enabled: *id001
+        potion:
+          $ref: '#/components/schemas/PotionDataWrite'
+      required:
+      - typeId
+      - name
+      - categoryId
+      - description
+      - enabled
+      - potion
+      additionalProperties: false
+    Holding:
+      type: object
+      properties:
+        id: *id002
+        groupId: *id002
+        characterId: *id002
+        typeId:
+          type: string
+        name: *id004
+        categoryId: *id002
+        quantity:
+          type: integer
+          format: int32
+          minimum: 0
+        reserved:
+          type: integer
+          format: int32
+          minimum: 0
+        available:
+          type: integer
+          format: int32
+          minimum: 0
+        version: *id005
+        definitionId:
+          type: string
+          format: uuid
+          nullable: true
+        definitionRevision:
+          type: integer
+          format: int32
+          nullable: true
+        letterId:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - id
+      - groupId
+      - characterId
+      - typeId
+      - name
+      - categoryId
+      - quantity
+      - reserved
+      - available
+      - version
+      - definitionId
+      - definitionRevision
+      - letterId
+      additionalProperties: true
+    Letter:
+      type: object
+      properties:
+        id: *id002
+        groupId: *id002
+        author:
+          $ref: '#/components/schemas/Character'
+        categoryId: *id002
+        title: *id004
+        body: *id003
+        version: *id005
+        locked: *id001
+        firstTradedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - groupId
+      - author
+      - categoryId
+      - title
+      - body
+      - version
+      - locked
+      - firstTradedAt
+      additionalProperties: true
+    HoldingDetails:
+      type: object
+      properties:
+        holding:
+          $ref: '#/components/schemas/Holding'
+        definition:
+          $ref: '#/components/schemas/Definition'
+        letter:
+          $ref: '#/components/schemas/Letter'
+      required:
+      - holding
+      additionalProperties: true
+      description: Current holder only. Exactly one definition or letter payload applies in 1.0.
+    Quota:
+      type: object
+      properties:
+        kind:
+          type: string
+          description: potion_points or letters; extensible identifier.
+        periodStart: *id006
+        resetAt: *id006
+        limit:
+          type: integer
+          format: int32
+          minimum: 0
+        used:
+          type: integer
+          format: int32
+          minimum: 0
+        remaining:
+          type: integer
+          format: int32
+          minimum: 0
+      required:
+      - kind
+      - periodStart
+      - resetAt
+      - limit
+      - used
+      - remaining
+      additionalProperties: true
+    Quotas:
+      type: object
+      properties:
+        groupId: *id002
+        characterId: *id002
+        quotas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Quota'
+      required:
+      - groupId
+      - characterId
+      - quotas
+      additionalProperties: true
+    PotionCreate:
+      type: object
+      properties:
+        definitionId: *id002
+        expectedDefinitionRevision: *id005
+        quantity: &id009
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1000
+      required:
+      - definitionId
+      - expectedDefinitionRevision
+      - quantity
+      additionalProperties: false
+    LetterCreate:
+      type: object
+      properties:
+        categoryId: *id002
+        title: *id004
+        body:
+          type: string
+          maxLength: 5000
+      required:
+      - categoryId
+      - title
+      - body
+      additionalProperties: false
+    LetterEdit:
+      type: object
+      properties:
+        title: *id004
+        body:
+          type: string
+          maxLength: 5000
+      required:
+      - title
+      - body
+      additionalProperties: false
+    ProductionResult:
+      type: object
+      properties:
+        holding:
+          $ref: '#/components/schemas/Holding'
+        quota:
+          $ref: '#/components/schemas/Quota'
+      required:
+      - holding
+      - quota
+      additionalProperties: true
+    ConsumptionRequest:
+      type: object
+      properties:
+        expectedHoldingVersion: *id005
+        chatConsent:
+          type: boolean
+          enum:
+          - true
+        destination:
+          type: string
+          description: emote, say, party, or a selected linkshell identifier; validate locally and server-side
+            format.
+      required:
+      - expectedHoldingVersion
+      - chatConsent
+      - destination
+      additionalProperties: false
+    ConsumptionResult:
+      type: object
+      properties:
+        holding:
+          $ref: '#/components/schemas/Holding'
+        message: *id003
+        destination:
+          type: string
+        chatDelivery:
+          type: string
+          description: Server does not verify game delivery.
+          enum:
+          - client_action_required
+      required:
+      - holding
+      - message
+      - destination
+      - chatDelivery
+      additionalProperties: true
+    DiscardRequest:
+      type: object
+      properties:
+        quantity: *id009
+        expectedHoldingVersion: *id005
+      required:
+      - quantity
+      - expectedHoldingVersion
+      additionalProperties: false
+    InventoryRemoval:
+      type: object
+      properties:
+        targetCharacterId: *id002
+        holdingId: *id002
+        quantity: *id009
+        expectedHoldingVersion: *id005
+        reason: *id008
+      required:
+      - targetCharacterId
+      - holdingId
+      - quantity
+      - expectedHoldingVersion
+      - reason
+      additionalProperties: false
+    TradeCreate:
+      type: object
+      properties:
+        targetCharacterId: *id002
+      required:
+      - targetCharacterId
+      additionalProperties: false
+    LetterPreview:
+      type: object
+      properties:
+        letterId: *id002
+        title: *id004
+        author:
+          $ref: '#/components/schemas/Character'
+        locked: *id001
+      required:
+      - letterId
+      - title
+      - author
+      - locked
+      additionalProperties: true
+    TradeItemPreview:
+      type: object
+      properties:
+        typeId:
+          type: string
+        name: *id004
+        categoryId: *id002
+        description: *id003
+        potionDefinition:
+          $ref: '#/components/schemas/Definition'
+        letterSummary:
+          $ref: '#/components/schemas/LetterPreview'
+      required:
+      - typeId
+      - name
+      - categoryId
+      - description
+      additionalProperties: true
+      description: Server-derived offered-item snapshot. Potion definition includes exact message/revision.
+        Letter preview has no body.
+    OfferItem:
+      type: object
+      properties:
+        holdingId: *id002
+        quantity: *id009
+        preview:
+          $ref: '#/components/schemas/TradeItemPreview'
+      required:
+      - holdingId
+      - quantity
+      - preview
+      additionalProperties: true
+    OfferCurrency:
+      type: object
+      properties:
+        currencyId: *id002
+        amount: &id010
+          type: string
+          description: Positive whole units within signed 64-bit range.
+          pattern: ^[1-9][0-9]*$
+          maxLength: 19
+      required:
+      - currencyId
+      - amount
+      additionalProperties: true
+    TradeOffer:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OfferItem'
+        currency:
+          type: array
+          items:
+            $ref: '#/components/schemas/OfferCurrency'
+      required:
+      - items
+      - currency
+      additionalProperties: true
+      description: Maximum discovered lines; 1.0 supports the one group currency. No duplicate resource
+        lines.
+    OfferItemWrite:
+      type: object
+      properties:
+        holdingId: *id002
+        quantity: *id009
+      required:
+      - holdingId
+      - quantity
+      additionalProperties: false
+    OfferCurrencyWrite:
+      type: object
+      properties:
+        currencyId: *id002
+        amount: *id010
+      required:
+      - currencyId
+      - amount
+      additionalProperties: false
+    TradeOfferDataWrite:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OfferItemWrite'
+        currency:
+          type: array
+          items:
+            $ref: '#/components/schemas/OfferCurrencyWrite'
+      required:
+      - items
+      - currency
+      additionalProperties: false
+    TradeOfferWrite:
+      type: object
+      properties:
+        expectedTradeRevision: *id005
+        offer:
+          $ref: '#/components/schemas/TradeOfferDataWrite'
+      required:
+      - expectedTradeRevision
+      - offer
+      additionalProperties: false
+    TradeRevisionRequest:
+      type: object
+      properties:
+        expectedTradeRevision: *id005
+      required:
+      - expectedTradeRevision
+      additionalProperties: false
+    TradeCancel:
+      type: object
+      properties:
+        reason:
+          type: string
+          maxLength: 500
+      additionalProperties: false
+    Trade:
+      type: object
+      properties:
+        id: *id002
+        groupId: *id002
+        initiatorCharacterId: *id002
+        recipientCharacterId: *id002
+        state:
+          type: string
+          enum:
+          - invited
+          - open
+          - completed
+          - cancelled
+          - expired
+        revision: *id005
+        expiresAt: *id006
+        initiatorOffer:
+          $ref: '#/components/schemas/TradeOffer'
+        recipientOffer:
+          $ref: '#/components/schemas/TradeOffer'
+        initiatorConfirmedRevision:
+          type: integer
+          format: int32
+          nullable: true
+        recipientConfirmedRevision:
+          type: integer
+          format: int32
+          nullable: true
+        completionOperationId:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - id
+      - groupId
+      - initiatorCharacterId
+      - recipientCharacterId
+      - state
+      - revision
+      - expiresAt
+      - initiatorOffer
+      - recipientOffer
+      - initiatorConfirmedRevision
+      - recipientConfirmedRevision
+      - completionOperationId
+      additionalProperties: true
+    HistoryEntry:
+      type: object
+      properties:
+        id: *id002
+        operationId: *id002
+        kind:
+          type: string
+        actorCharacterId: *id002
+        subjectCharacterId:
+          type: string
+          format: uuid
+          nullable: true
+        occurredAt: *id006
+        summary: *id003
+        reason:
+          type: string
+          nullable: true
+      required:
+      - id
+      - operationId
+      - kind
+      - actorCharacterId
+      - subjectCharacterId
+      - occurredAt
+      - summary
+      - reason
+      additionalProperties: true
+      description: No letter body, credentials, invitation secret, or unrestricted arbitrary metadata.
+    Operation:
+      type: object
+      properties:
+        id: *id002
+        groupId:
+          type: string
+          format: uuid
+          nullable: true
+        kind:
+          type: string
+        actorCharacterId:
+          type: string
+          description: Required for asset commands; null only for anonymous login bootstrap receipts.
+          format: uuid
+          nullable: true
+        occurredAt: *id006
+        resourceIds:
+          type: array
+          items: *id002
+      required:
+      - id
+      - groupId
+      - kind
+      - actorCharacterId
+      - occurredAt
+      - resourceIds
+      additionalProperties: true
+    OperationLookup:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - pending
+          - completed
+        operation:
+          $ref: '#/components/schemas/Operation'
+      required:
+      - status
+      additionalProperties: true
+    DataRequest:
+      type: object
+      properties:
+        id: *id002
+        kind:
+          type: string
+          enum:
+          - export
+          - deletion
+        status:
+          type: string
+          enum:
+          - pending
+          - ready
+          - completed
+          - rejected
+        createdAt: *id006
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        message: *id003
+      required:
+      - id
+      - kind
+      - status
+      - createdAt
+      - expiresAt
+      - message
+      additionalProperties: true
+    DeletionRequest:
+      type: object
+      properties:
+        confirmCharacterName: *id004
+      required:
+      - confirmCharacterName
+      additionalProperties: false
+    ExportMembership:
+      type: object
+      properties:
+        groupId: *id002
+        groupNameSnapshot: *id003
+        status:
+          type: string
+        ownCapabilities:
+          type: array
+          items:
+            type: string
+      required:
+      - groupId
+      - groupNameSnapshot
+      - status
+      - ownCapabilities
+      additionalProperties: true
+    CharacterExport:
+      type: object
+      properties:
+        character:
+          $ref: '#/components/schemas/Character'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportMembership'
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingDetails'
+        quotas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Quotas'
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryEntry'
+        exportedAt: *id006
+      required:
+      - character
+      - groups
+      - holdings
+      - quotas
+      - history
+      - exportedAt
+      additionalProperties: true
+      description: Approved character-scoped export; no auth secrets or other holders private content.
+        May stream large arrays.
+    ChangeEvent:
+      type: object
+      properties:
+        sequence:
+          type: string
+          pattern: ^[0-9]+$
+        groupId: *id002
+        type:
+          type: string
+        resourceId:
+          type: string
+          format: uuid
+          nullable: true
+        resourceVersion:
+          type: integer
+          format: int32
+          nullable: true
+        operationId:
+          type: string
+          format: uuid
+          nullable: true
+        occurredAt: *id006
+      required:
+      - sequence
+      - groupId
+      - type
+      - resourceId
+      - resourceVersion
+      - operationId
+      - occurredAt
+      additionalProperties: true
+      description: Recipient-filtered invalidation metadata; no chat action or letter-body delivery.
+    GroupPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+        nextCursor:
+          type: string
+          nullable: true
+        snapshotVersion:
+          type: string
+        eventCursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - nextCursor
+      - snapshotVersion
+      - eventCursor
+      additionalProperties: true
+    MemberPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+        nextCursor:
+          type: string
+          nullable: true
+        snapshotVersion:
+          type: string
+        eventCursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - nextCursor
+      - snapshotVersion
+      - eventCursor
+      additionalProperties: true
+    InvitationPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invitation'
+        nextCursor:
+          type: string
+          nullable: true
+        snapshotVersion:
+          type: string
+        eventCursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - nextCursor
+      - snapshotVersion
+      - eventCursor
+      additionalProperties: true
+    CategoryPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        nextCursor:
+          type: string
+          nullable: true
+        snapshotVersion:
+          type: string
+        eventCursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - nextCursor
+      - snapshotVersion
+      - eventCursor
+      additionalProperties: true
+    DefinitionPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Definition'
+        nextCursor:
+          type: string
+          nullable: true
+        snapshotVersion:
+          type: string
+        eventCursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - nextCursor
+      - snapshotVersion
+      - eventCursor
+      additionalProperties: true
+    HoldingPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Holding'
+        nextCursor:
+          type: string
+          nullable: true
+        snapshotVersion:
+          type: string
+        eventCursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - nextCursor
+      - snapshotVersion
+      - eventCursor
+      additionalProperties: true
+    BalancePage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance'
+        nextCursor:
+          type: string
+          nullable: true
+        snapshotVersion:
+          type: string
+        eventCursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - nextCursor
+      - snapshotVersion
+      - eventCursor
+      additionalProperties: true
+    TradePage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Trade'
+        nextCursor:
+          type: string
+          nullable: true
+        snapshotVersion:
+          type: string
+        eventCursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - nextCursor
+      - snapshotVersion
+      - eventCursor
+      additionalProperties: true
+    HistoryEntryPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryEntry'
+        nextCursor:
+          type: string
+          nullable: true
+        snapshotVersion:
+          type: string
+        eventCursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - nextCursor
+      - snapshotVersion
+      - eventCursor
+      additionalProperties: true
+    SessionInfoPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionInfo'
+        nextCursor:
+          type: string
+          nullable: true
+        snapshotVersion:
+          type: string
+        eventCursor:
+          type: string
+          nullable: true
+      required:
+      - items
+      - nextCursor
+      - snapshotVersion
+      - eventCursor
+      additionalProperties: true
+    Receipt:
+      type: object
+      properties:
+        operationId: *id002
+      required:
+      - operationId
+      additionalProperties: true
+    StartLoginResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/LoginAttemptCreated'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    ExchangeLoginResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/SessionTokens'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    RefreshSessionResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/SessionTokens'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    CreateGroupResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Group'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    JoinGroupResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Group'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    EditGroupResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Group'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    EditPoliciesResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/GroupPolicies'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    SetMemberCapabilitiesResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Member'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    SetTradeRestrictionResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Member'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    RemoveMemberResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Member'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    RestoreMemberResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Member'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    CreateInvitationResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/InvitationCreated'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    ProposeOwnershipResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/OwnershipTransfer'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    AcceptOwnershipResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/OwnershipTransfer'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    CancelOwnershipResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/OwnershipTransfer'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    EditCurrencyResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Currency'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    AdjustCurrencyResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Balance'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    CreateCategoryResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Category'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    EditCategoryResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Category'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    RetireCategoryResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Category'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    CreateDefinitionResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Definition'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    ReviseDefinitionResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Definition'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    RetireDefinitionResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Definition'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    CreatePotionsResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/ProductionResult'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    CreateLetterResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/ProductionResult'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    EditLetterResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Letter'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    UseHoldingResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/ConsumptionResult'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    DiscardHoldingResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Holding'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    RemoveHoldingResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Holding'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    StartTradeResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Trade'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    AcceptTradeResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Trade'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    SetTradeOfferResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Trade'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    ConfirmTradeResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Trade'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    CancelTradeResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/Trade'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    RequestExportResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/DataRequest'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+    RequestDeletionResult:
+      type: object
+      properties:
+        operationId: *id002
+        result:
+          $ref: '#/components/schemas/DataRequest'
+      required:
+      - operationId
+      - result
+      additionalProperties: true
+x-status: planned
+x-defaults-reviewed: '2026-10-06'

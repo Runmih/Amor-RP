@@ -1,0 +1,83 @@
+# XIVAuth integration plan
+
+XIVAuth is the selected provider to evaluate. Its [official repository](https://github.com/XIVAuth/XIVAuth)
+documents OAuth authorization/device flows and character attestations. Its hosted
+service is [xivauth.net](https://xivauth.net/). This project has not registered an
+application or demonstrated a complete login yet. Do not invent provider route
+names, scope strings, claim formats, or verification guarantees from these summaries.
+
+The reviewed upstream route source contains an API v1 namespace. Hosted-service
+compatibility, exact scopes/claims and OAuth library pins remain M1 evidence, not
+verified integrations. Record these in the [version matrix](versions.md) and
+provider adapter fixtures. Consuming hosted XIVAuth does not require our server
+to install or maintain the provider's Rails/Ruby/Redis stack.
+
+## Intended flow
+
+1. Plugin calls Amor RP `POST /api/v1/auth/login-attempts`, giving the selected
+   character's display-name/home-world hint. Server creates an expiring attempt,
+   state and random attempt credential; hints are not authoritative. The plugin
+   supplies a fresh 256-bit `X-Login-Request-Credential`, retained only for retries
+   of that start request. This binds unauthenticated response replay to request
+   possession; an idempotency key alone must not retrieve login secrets.
+2. Server returns a trusted provider authorization URL and attempt credential.
+   Plugin asks player to open browser. Provider client secret remains on server.
+3. Player authenticates with XIVAuth and consents to verification of the selected
+   character, using only the minimal necessary scope.
+4. XIVAuth redirects to configured `GET /auth/xivauth/callback`. Server validates
+   one-use state, expiry and authorization exchange (PKCE if applicable); obtains
+   verified character data and checks selected character, provider, audience,
+   expiration and signature as required by the actual provider flow.
+5. Plugin polls attempt status using its attempt credential. Status polling does
+   not expose session tokens. Browser cannot claim an unrelated plugin attempt.
+6. Plugin exchanges successful attempt once for a character-bound session using
+   the attempt credential and idempotency key. Refresh/login secrets are not URL
+   parameters. Session grants access to current character only.
+7. Session renewal rotates refresh credential and revalidates ownership according
+   to tested provider capabilities. Local logout revokes the server session and
+   closes its socket; remote device revocation is available from session management.
+
+Device authorization is a possible provider-specific substitute behind the same
+adapter. Do not implement both for 1.0. Select the supported flow after testing.
+Provider/browser login must be usable without another installed Dalamud plugin.
+
+## Identity mapping
+
+- Use provider-verified stable character identity/attestation binding as persisted
+  ownership key. Record name and home world for display/context matching.
+- Never merge on current name or home world. Character rename/transfer updates
+  display identity after fresh verification without resetting holdings or quotas.
+- A provider user can authenticate different verified characters; their group
+  permissions/budgets remain independent. Do not retrieve/store their whole alt list.
+- Explicitly test provider character unlink/relink, revocation and transfer to
+  another provider account. Never silently transfer old assets to a new binding.
+- No Square Enix passwords, one-time passwords, or raw game account IDs are needed.
+
+## Adapter boundary
+
+`ICharacterIdentityProvider` returns normalized verified identity, validity and
+renewal information. Provider DTOs/URLs/scopes exist only inside the XIVAuth adapter
+and validated options. Domain code sees character identity, not OAuth transport.
+Use current maintained OAuth libraries rather than implementing cryptography.
+Use a fixed allowlisted issuer configuration, pinned redirects, and validated keys;
+no issuer fetched from a submitted token or client-controlled URL.
+
+## Integration gate
+
+| Evidence required | Why |
+| --- | --- |
+| Developer account/application and callback registration | Hosted service use requires onboarding |
+| Minimal scopes and stable verified character claims | Correct ownership mapping and privacy |
+| Login in deployed environment | Callback/HTTPS/proxy configuration tested |
+| Wrong/unverified character, expired state, callback replay rejected | Spoofing/login takeover prevented |
+| Reauthentication/refresh/logout/revocation tested | Sessions do not outlive intended ownership authority |
+| Rename/world transfer and unlink/relink behavior documented | Avoid inaccessible or reassigned inventories |
+| Provider outage behavior | Existing unexpired sessions may continue; new login/renewal fails clearly |
+| Development fixtures isolated from release | No production authentication bypass |
+
+Developer onboarding presently calls for MFA and verified character ownership;
+the human maintainer supplies that account access. Application registration and
+credentials are external setup dependencies, not information available in this repo.
+Review the [developer agreement](https://xivauth.net/legal/devagreement) before beta.
+If required stable identity or revocation support cannot be demonstrated, revise
+the adapter/session policy and this contract before declaring milestone M1 complete.

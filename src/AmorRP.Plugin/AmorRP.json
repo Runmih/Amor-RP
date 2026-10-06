@@ -1,0 +1,9 @@
+{
+  "Name": "Amor RP",
+  "Author": "Runmih",
+  "Punchline": "Roleplay currency and items in closed groups.",
+  "Description": "M0 foundation: character display and local server diagnostics. Authentication, inventory and trading arrive in later milestones.",
+  "RepoUrl": "https://github.com/Runmih/Amor-RP",
+  "Tags": ["roleplay", "inventory"],
+  "ApplicableVersion": "any"
+}

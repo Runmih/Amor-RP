@@ -1,0 +1,21 @@
+namespace AmorRP.Contracts.Common;
+
+public sealed record CapabilitiesResponse(
+    string ApiVersion,
+    string ServerVersion,
+    string MinimumClientVersion,
+    bool Maintenance,
+    string Message,
+    ItemTypeInfo[] SupportedTypes,
+    string[] GrantableCapabilities,
+    string[] ChatDestinationKinds,
+    PublicLimits Limits);
+
+public sealed record ItemTypeInfo(string Id, int TypeDataVersion, bool CanUse, bool Stackable);
+
+public sealed record PublicLimits(
+    int OwnedGroups, int JoinedGroups, int DefaultLettersPerWeek, int DefaultPotionPoints,
+    int ChatMessageTextElements, int LetterTitleTextElements, int LetterBodyTextElements,
+    int MaxPageSize, int MaxHoldingsPerCharacterGroup, int MaxTradeLinesPerSide,
+    int MaxCreationQuantity, int TradeLifetimeSeconds, string ResetWeekdayUtc,
+    string ResetTimeUtc, int MaxRequestBytes);
