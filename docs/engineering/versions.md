@@ -1,8 +1,9 @@
 # Versions and compatibility baseline
 
 Reviewed 2026-10-06. M0 now builds against this baseline with pinned dependencies.
-The old scaffold has been replaced. Live game, hosted Windows CI and server image
-build gates remain pending; see [M0 evidence](../delivery/m0-install-test.md).
+The old scaffold has been replaced. M0 game testing was reported successful by
+the maintainer; M1 game/provider tests, hosted CI and the server image build remain
+pending. See [M1 evidence](../delivery/m1-install-test.md).
 Other product features remain planned. No SDK 11 compatibility or legacy profile
 migration is required for the new product.
 
@@ -25,7 +26,7 @@ migration is required for the new product.
 | PostgreSQL server | Major 18, available on Render; upstream current minor `18.6` | Explicit Render major version, local/test image pin; deployed server version in operations record | M0 local DB; M1 hosted connection; M5 restore |
 | PostgreSQL backup tools | PostgreSQL 18 `pg_dump` / `pg_restore` family | Backup image/tool pin and restore record | M5 backup/restore drill |
 | XIVAuth | Hosted `xivauth.net`; upstream source contains API v1 and OAuth 2 flows | Adapter options, reviewed source reference, fixtures and integration record | M1 confirms hosted routes/scopes/claims/renewal |
-| OAuth / attestation libraries | Select maintained .NET 10-compatible libraries after choosing tested provider flow; exact package pins pending | Server package pins and lock | M1 login/replay/revocation tests |
+| OAuth / attestation transport | M1 uses .NET HttpClient and ASP.NET WebUtilities with S256 PKCE, fixed TLS endpoints and verified-character lookup; no JWT/attestation verification in the spike | Feasibility adapter; upstream XIVAuth `4bc2440684989cf8e56bc1169afcf5bd3a200172` and test fixtures | Hosted flow and durable auth library selection remain gates |
 | HTTP specification | OpenAPI `3.0.3`; product API `/api/v1` | `openapi.yaml` and server contract comparison | M0 tooling; endpoint contract tests as implemented |
 | Live events | Product protocol v1, HTTPS/WSS using runtime networking | Contracts, capabilities and event fixtures | M4 reconnect and compatibility tests |
 | Domain / adapter tests | xunit.v3 3.2.2, runner 3.1.5, Microsoft.NET.Test.Sdk 18.10.1; disposable PostgreSQL 18 | Test projects, package pins/locks and CI | M0 22 cases passed; M2/M4 asset invariant tests remain |
@@ -149,5 +150,6 @@ loads. M1 proves real provider and game integration using the recorded versions.
 M4 exercises supported client/server combinations during deployment/reconnect.
 M5 checks installation, new-product settings upgrade, schema compatibility and
 backup restoration on the exact release artifacts. Test/image pins are now selected;
-auth library pins are selected with the real M1 provider flow. Pending Windows,
-live-game and container gates must pass before M0 is marked fully accepted.
+the M1 source-reviewed adapter is isolated from durable sessions. M0 game testing
+was reported successful; remaining hosted CI/container evidence and live M1
+provider/game gates are recorded separately.

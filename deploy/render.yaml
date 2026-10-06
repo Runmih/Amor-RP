@@ -10,12 +10,21 @@ services:
     dockerfilePath: ./deploy/Dockerfile
     dockerContext: .
     healthCheckPath: /health/ready
+    preDeployCommand: dotnet AmorRP.Server.dll --migrate
     autoDeployTrigger: off
     envVars:
       - key: ConnectionStrings__Database
         sync: false
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      - key: XivAuth__Enabled
+        value: "false"
+      - key: XivAuth__ClientId
+        sync: false
+      - key: XivAuth__ClientSecret
+        sync: false
+      - key: XivAuth__CallbackUrl
+        sync: false
 databases:
   - name: amorrp-database
     databaseName: amorrp

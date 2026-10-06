@@ -1,5 +1,9 @@
 # Install and test M0
 
+Historical M0 build: use branch `m0-foundation` to reproduce these versions.
+The maintainer reported M0 testing successful on 2026-10-06. For current work,
+use the [M1 guide](m1-install-test.md).
+
 Build date: 2026-10-06. Plugin version: `0.0.1.0`, Dalamud API 15.
 
 M0 provides a loadable plugin package with `/amorrp`, local character/home-world

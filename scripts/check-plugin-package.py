@@ -3,6 +3,7 @@
 import json
 import sys
 import zipfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
@@ -14,7 +15,8 @@ with zipfile.ZipFile(package) as archive:
     manifest = json.loads(archive.read("AmorRP.json"))
     assert manifest["InternalName"] == "AmorRP"
     assert manifest["DalamudApiLevel"] == 15
-    assert manifest["AssemblyVersion"] == "0.0.1.0"
+    expected_version = ET.parse(root / "src/AmorRP.Plugin/AmorRP.Plugin.csproj").findtext(".//Version")
+    assert manifest["AssemblyVersion"] == expected_version
     assert manifest["RepoUrl"] == "https://github.com/Runmih/Amor-RP"
     for name in names:
         assert Path(name).name == name, f"Unexpected nested or unsafe entry: {name}"

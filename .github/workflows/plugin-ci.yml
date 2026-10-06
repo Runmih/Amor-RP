@@ -29,7 +29,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: AmorRP-M0-plugin
+          name: AmorRP-plugin
           path: src/AmorRP.Plugin/bin/x64/Release/AmorRP/latest.zip
           if-no-files-found: error
           retention-days: 30

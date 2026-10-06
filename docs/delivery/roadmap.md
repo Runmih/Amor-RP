@@ -13,10 +13,13 @@ Do not mark a milestone complete because its code exists without its exit eviden
 | M4: trading beta | Context-menu offers, reservations, currency+items, revisions/confirmations, restrictions, history | Concurrent acceptance matrix passes; two real players trade successfully; interruption recovery demonstrated |
 | M5: 1.0 candidate | Installation/updates, privacy/support, export/deletion, backup/restore, capacity, UI polish | Entire release checklist passes; no unresolved critical defect or integration gate; human release review |
 
-M0 implementation is built and locally verified (22 tests). Its live FFXIV load,
-hosted Windows CI and complete server container build remain pending. Follow the
-[installation guide and checklist](m0-install-test.md) to supply that evidence;
-the gate is not yet marked fully accepted.
+M0 in-game testing was reported successful by the maintainer on 2026-10-06.
+Hosted CI and a complete server container build still need their own recorded
+evidence. M1's isolated identity/context/chat probes are implemented; follow the
+[M1 setup and exit checklist](m1-install-test.md). Neither an XIVAuth application
+nor Render service was available during implementation. M1 is not accepted until
+live provider, deployment and channel/menu tests pass. Its five-minute probe
+sessions do not implement the durable product authentication contract.
 
 ## Dependency priorities
 

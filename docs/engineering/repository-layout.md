@@ -9,6 +9,12 @@ has `Common/` DTOs; Core has `Groups/` capacity policy. Server has `Health/` and
 `Diagnostics/` and pure HTTP helpers, with complete lifecycle unsubscription.
 Three test projects exist: Contracts, Plugin and Server.IntegrationTests.
 
+M1 adds `Contracts/Feasibility/`, `Server/Features/Feasibility/` (provider options,
+adapter, bounded temporary store and six probe routes), `Plugin/Services/Game/`
+(context-menu capture and chat submission), and `Diagnostics/FeasibilityPanel`.
+These spike sessions are deliberately separate from future durable authentication
+and persistence. See [M1 setup](../delivery/m1-install-test.md).
+
 The solution, dependency/tool pins, package locks, deployment recipes, source/package
 scripts and two CI workflows exist. Required JSON is no longer blanket-ignored.
 Git history, current documentation and license are preserved. No extra backend

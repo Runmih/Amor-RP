@@ -3,12 +3,17 @@
 XIVAuth is the selected provider to evaluate. Its [official repository](https://github.com/XIVAuth/XIVAuth)
 documents OAuth authorization/device flows and character attestations. Its hosted
 service is [xivauth.net](https://xivauth.net/). This project has not registered an
-application or demonstrated a complete login yet. Do not invent provider route
+application or demonstrated a live hosted login yet. M1 implements an isolated
+OAuth/PKCE adapter and temporary probes; see the [M1 setup guide](../delivery/m1-install-test.md).
+The intended durable flow below is not implemented by those probes. Do not invent provider route
 names, scope strings, claim formats, or verification guarantees from these summaries.
 
 The reviewed upstream route source contains an API v1 namespace. Hosted-service
-compatibility, exact scopes/claims and OAuth library pins remain M1 evidence, not
-verified integrations. Record these in the [version matrix](versions.md) and
+compatibility remains M1 evidence. Source-reviewed probes use authorization-code
+with mandatory S256 PKCE, minimal `character` scope, and server-side HTTPS lookup
+of `persistent_key`, `lodestone_id`, `name`, `home_world` and `verified_at`.
+They do not consume attestations/JWTs or implement signature cryptography.
+Record these in the [version matrix](versions.md) and
 provider adapter fixtures. Consuming hosted XIVAuth does not require our server
 to install or maintain the provider's Rails/Ruby/Redis stack.
 

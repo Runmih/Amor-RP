@@ -3,7 +3,7 @@ info:
   title: Amor RP proposed 1.0 API
   version: 1.0.0-draft
   description: Proposed 1.0 contract. M0 implements liveness, readiness and capabilities;
-    other routes are planned. Defaults are provisional; decision register and API guide define rules.
+    M1 adds temporary identity feasibility probes. Durable authentication and product routes are planned. Defaults are provisional; decision register and API guide define rules.
 servers:
 - url: https://api.example.invalid
   description: Placeholder; configure real trusted backend URL.
@@ -4573,6 +4573,286 @@ paths:
           pattern: ^[0-9]+$
       description: HTTP description of WebSocket upgrade. Message protocol is in api.md; ordinary GET
         without upgrade returns 426.
+  /api/v1/feasibility/login-attempts:
+    post:
+      operationId: startIdentityProbe
+      tags:
+      - Feasibility
+      summary: Start temporary XIVAuth feasibility login
+      description: M1 isolated, single-instance probe. State is memory-only and bounded; restart requires
+        re-login. Not the durable authentication contract. Disabled until XIVAuth is configured.
+      security:
+      - LoginBootstrap: []
+      responses:
+        '201':
+          description: Start temporary XIVAuth feasibility login
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginAttemptCreated'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: LoginBootstrap
+      x-implementation-status: implemented
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Fresh UUIDv7 (at most ten minutes old). Same key and secret retry credential bind
+          probe replay.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityProbeStart'
+  /api/v1/feasibility/login-attempts/{attemptId}:
+    get:
+      operationId: pollIdentityProbe
+      tags:
+      - Feasibility
+      summary: Poll temporary login without session secrets
+      description: M1 isolated, single-instance probe. State is memory-only and bounded; restart requires
+        re-login. Not the durable authentication contract. Disabled until XIVAuth is configured.
+      security:
+      - LoginAttempt: []
+      responses:
+        '200':
+          description: Poll temporary login without session secrets
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginAttemptStatus'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: LoginAttempt
+      x-implementation-status: implemented
+      parameters:
+      - name: attemptId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+  /auth/xivauth/feasibility-callback:
+    get:
+      operationId: identityProbeCallback
+      tags:
+      - Feasibility
+      summary: One-use PKCE feasibility callback
+      description: M1 isolated, single-instance probe. State is memory-only and bounded; restart requires
+        re-login. Not the durable authentication contract. Disabled until XIVAuth is configured.
+      security: []
+      responses:
+        '200':
+          description: One-use PKCE feasibility callback
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: no-store
+          content:
+            text/html:
+              schema:
+                type: string
+        '400':
+          description: Invalid state or failed/expired login. No secrets returned.
+          content:
+            text/html:
+              schema:
+                type: string
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Exact HTTPS callback, one-use state and S256 PKCE
+      x-implementation-status: implemented
+      parameters:
+      - name: state
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: code
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: error
+        in: query
+        required: false
+        schema:
+          type: string
+  /api/v1/feasibility/login-attempts/{attemptId}/exchange:
+    post:
+      operationId: exchangeIdentityProbe
+      tags:
+      - Feasibility
+      summary: Exchange temporary attempt for five-minute probe session
+      description: M1 isolated, single-instance probe. State is memory-only and bounded; restart requires
+        re-login. Not the durable authentication contract. Disabled until XIVAuth is configured.
+      security:
+      - LoginAttempt: []
+      responses:
+        '200':
+          description: Exchange temporary attempt for five-minute probe session
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityProbeSession'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: LoginAttempt
+      x-implementation-status: implemented
+      parameters:
+      - name: attemptId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Fresh UUIDv7 (at most ten minutes old). Same key and secret retry credential bind
+          probe replay.
+  /api/v1/feasibility/identity:
+    get:
+      operationId: readProbeIdentity
+      tags:
+      - Feasibility
+      summary: Check temporary authenticated reconnect
+      description: M1 isolated, single-instance probe. State is memory-only and bounded; restart requires
+        re-login. Not the durable authentication contract. Disabled until XIVAuth is configured.
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Check temporary authenticated reconnect
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifiedProbeCharacter'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Session
+      x-implementation-status: implemented
+  /api/v1/feasibility/session:
+    delete:
+      operationId: logoutIdentityProbe
+      tags:
+      - Feasibility
+      summary: Revoke temporary probe session
+      description: M1 isolated, single-instance probe. State is memory-only and bounded; restart requires
+        re-login. Not the durable authentication contract. Disabled until XIVAuth is configured.
+      security:
+      - Session: []
+      responses:
+        '204':
+          description: Revoke temporary probe session
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: no-store
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Session
+      x-implementation-status: implemented
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Fresh UUIDv7 (at most ten minutes old). Same key and secret retry credential bind
+          probe replay.
 components:
   securitySchemes:
     Session:
@@ -6546,6 +6826,55 @@ components:
       required:
       - operationId
       - result
+      additionalProperties: true
+    IdentityProbeStart:
+      type: object
+      properties:
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 80
+        homeWorld:
+          type: string
+          minLength: 1
+          maxLength: 80
+      required:
+      - displayName
+      - homeWorld
+      additionalProperties: false
+    VerifiedProbeCharacter:
+      type: object
+      properties:
+        persistentKey:
+          type: string
+          description: Provider-verified ownership binding. Not an account or game ContentId.
+        lodestoneId:
+          type: string
+        displayName:
+          type: string
+        homeWorld:
+          type: string
+      required:
+      - persistentKey
+      - lodestoneId
+      - displayName
+      - homeWorld
+      additionalProperties: true
+    IdentityProbeSession:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: Five-minute, memory-only probe credential; no production API access.
+        expiresAt:
+          type: string
+          format: date-time
+        character:
+          $ref: '#/components/schemas/VerifiedProbeCharacter'
+      required:
+      - accessToken
+      - expiresAt
+      - character
       additionalProperties: true
 x-status: planned
 x-defaults-reviewed: '2026-10-06'

@@ -1,8 +1,9 @@
 # API contract and endpoint catalog
 
 **Status: proposed 1.0 contract; M0 implements three public GETs:** `/health/live`,
-`/health/ready`, and `/api/v1/capabilities`. Other routes are planned and return 404
-in M0. Capabilities advertises empty type/permission/chat lists until those features
+`/health/ready`, and `/api/v1/capabilities`. M1 adds the six temporary feasibility
+operations catalogued below. Durable auth and product routes remain planned.
+Capabilities advertises empty type/permission/chat lists until those features
 exist. [OpenAPI](openapi.yaml) is the
 machine-readable route/schema catalog. Every operation has explicit authorization
 metadata; framework `security` authentication alone is not enough to implement it.
@@ -309,3 +310,17 @@ Implement and export server OpenAPI, compare routes/schemas with this draft, and
 keep the catalog synchronized. Integration tests assert authorization/invariants;
 OpenAPI validation alone cannot prove those semantics. Add endpoints only alongside
 product rules, schemas, failure handling and acceptance coverage.
+
+## M1 temporary feasibility endpoints
+
+These six implemented operations are isolated from the planned durable authentication
+API. They cannot authorize groups, inventory or trading. See the [M1 setup guide](../delivery/m1-install-test.md) for lifetime, replay and configuration limits.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| POST | `/api/v1/feasibility/login-attempts` | Start temporary XIVAuth feasibility login |
+| GET | `/api/v1/feasibility/login-attempts/{attemptId}` | Poll temporary login without session secrets |
+| GET | `/auth/xivauth/feasibility-callback` | One-use PKCE feasibility callback |
+| POST | `/api/v1/feasibility/login-attempts/{attemptId}/exchange` | Exchange temporary attempt for five-minute probe session |
+| GET | `/api/v1/feasibility/identity` | Check temporary authenticated reconnect |
+| DELETE | `/api/v1/feasibility/session` | Revoke temporary probe session |

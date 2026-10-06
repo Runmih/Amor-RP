@@ -42,7 +42,7 @@ public sealed class BackendProbe : IDisposable
             if (!ready.IsSuccessStatusCode
                 || (await ready.Content.ReadFromJsonAsync<HealthResponse>(cancellationToken))?.Status != "ok")
                 return new("Server did not pass its readiness check.", false);
-            return new($"Server {capabilities.ServerVersion} and database are ready. M0 connection test passed.", true);
+            return new($"Server {capabilities.ServerVersion} and database are ready. Connection test passed.", true);
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
