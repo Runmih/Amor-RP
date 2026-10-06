@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>AmorRP</AssemblyName>
     <RootNamespace>AmorRP.Plugin</RootNamespace>
-    <Version>0.0.2.0</Version>
+    <Version>0.0.2.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Description>Roleplay currency and items in closed groups. M1 integration tests.</Description>
     <PackageProjectUrl>https://github.com/Runmih/Amor-RP</PackageProjectUrl>

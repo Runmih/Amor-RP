@@ -5,7 +5,7 @@ namespace AmorRP.Plugin.Services.Game;
 
 public static class GameChatSender
 {
-    // Called only on Dalamud's UI thread after a fresh preview and explicit consent.
+    // Called only on Dalamud's UI thread for a user action with startup chat permission.
     public static unsafe bool Send(string text, int destination)
     {
         if (!ChatCommand.TryCreate(text, destination, out var command)) return false;

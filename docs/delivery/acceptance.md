@@ -18,7 +18,7 @@ tests. In-game behavior requires human tests in FFXIV.
 | F08 production | Correct quantity*cost; independent alt quotas; grant/rejoin does not refill; no concurrent overspend |
 | F09 letters | Five/week default; limit changes scheduled; editable/locked author rules; bounded body |
 | F10 inventory | Both views; search/pagination; details privacy; accurate available/reserved quantities |
-| F11 use/chat | Explicit consent/preview; all channels; correct one-item commit; duplicate and chat-failure UX |
+| F11 use/chat | One startup consent question; posts/message/channel/character/group/backend changes retain it; next plugin startup asks again; decline/settings disable posting; exact preview/all channels; correct one-item commit; duplicate and chat-failure UX |
 | F12 trades | Safe potion/letter previews, invite/accept, offer resets, stale revision rejection, reservations, completion/cancel/expiry races |
 | F13 history | Personal visibility/owner scope; reasons and actor; no letter body or secret leakage |
 | F14 recovery | Request ambiguity, reconnect gaps, restart during trade, durable idempotency |
@@ -60,7 +60,7 @@ No silent destination changes. Simulate FFXIV chat failure after confirmed consu
 
 Measure plugin frame impact during large inventory search and server timeout.
 Asynchronous requests never block drawing; cancel/dispose unsubscribes all events.
-Verify settings at UI scales, keyboard navigation, first-use consent, restrictive
+Verify settings at UI scales, keyboard navigation, once-per-startup chat consent, restrictive
 permissions, offline mode, and readable failure messages with a request ID.
 
 ## Capacity and operating checks

@@ -14,6 +14,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly ICommandManager commands;
     private readonly WindowSystem windows = new("AmorRP");
     private readonly MainWindow mainWindow;
+    private readonly ChatConsentWindow chatConsent = new();
     private readonly CharacterContext context;
 
     public Plugin(IDalamudPluginInterface pluginInterface, ICommandManager commands, IPlayerState playerState,
@@ -22,9 +23,10 @@ public sealed class Plugin : IDalamudPlugin
         this.pluginInterface = pluginInterface;
         this.commands = commands;
         var configuration = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-        mainWindow = new MainWindow(playerState, party, configuration, () => pluginInterface.SavePluginConfig(configuration));
+        mainWindow = new MainWindow(playerState, party, chatConsent, configuration, () => pluginInterface.SavePluginConfig(configuration));
         context = new(contextMenu, mainWindow.SelectTarget);
         windows.AddWindow(mainWindow);
+        windows.AddWindow(chatConsent);
         commands.AddHandler(Command, new CommandInfo(OnCommand) { HelpMessage = "Open Amor RP." });
         pluginInterface.UiBuilder.Draw += windows.Draw;
         pluginInterface.UiBuilder.OpenMainUi += Open;

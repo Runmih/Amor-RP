@@ -16,7 +16,7 @@ concrete baseline for implementation planning, subject to product review.
 | A08 | Agreed | Alt characters can have independent allowances. Alt management is the owner's responsibility. No account-level sharing or alt detection. |
 | A09 | Agreed | Owner-configurable letter creation limits; five letters/week is the initial default. |
 | A10 | Agreed | Weekly allowance reset. |
-| A11 | Agreed | Potion use consumes one and requires consent to post its visible use message; initially 50 characters. Player selects Emote, Say, Party, or Linkshell. |
+| A11 | Agreed | Potion use consumes one and posts its visible use message; initially 50 characters. Ask for chat consent once at plugin startup. Consent stays active for that startup across posts, message/channel changes and character/group/backend switches; no per-message permission prompt. Player selects Emote, Say, Party, or Linkshell and may change consent in settings. |
 | A12 | Agreed | Context-menu trading; members can trade by default; owner can restrict a character. |
 | A13 | Agreed | Evaluate XIVAuth for authentication and verified character identity. |
 | A14 | Agreed | Existing project files may be completely replaced. The new product does not need to preserve the SDK 11 scaffold or its sample profile behavior. |

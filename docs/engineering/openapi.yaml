@@ -5823,6 +5823,8 @@ components:
         expectedHoldingVersion: *id005
         chatConsent:
           type: boolean
+          description: Existing once-per-startup chat permission, automatically supplied by the client.
+            Never requires a new per-message or per-use consent question.
           enum:
           - true
         destination:

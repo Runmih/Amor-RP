@@ -5,7 +5,7 @@ letters, and trading inside isolated, owner-managed groups.
 
 **Status:** M0 testing reported successful; M1 feasibility implementation available.
 The plugin adds XIVAuth browser login probes, player context-menu inspection and
-explicitly approved chat tests. The server retains PostgreSQL readiness and adds
+startup-consented chat tests. The server retains PostgreSQL readiness and adds
 isolated, temporary identity probes. Durable authentication, groups, inventory and
 trading are later work. Live M1 XIVAuth/Render/game evidence is still required.
 

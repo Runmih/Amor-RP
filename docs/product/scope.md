@@ -25,11 +25,11 @@ RP value is fictional; 1.0 has no real-money exchange or gambling functionality.
 | F08 | Potion production | Authorized character spends its own weekly points to create quantities. |
 | F09 | Letters | Every active member can create within weekly quota, read owned letters, edit eligible letters. |
 | F10 | Inventory | Extended searchable/filterable list and type-specific details; compact pinned-potion view. |
-| F11 | Potion use | Explicit confirmation consumes one; required chat consent; selected channel and exact preview. |
+| F11 | Potion use | A deliberate Use action consumes one; chat consent asked once at startup; selected channel and exact preview; no per-message permission prompt. |
 | F12 | Trading | Character context menu opens group-bound trade; quantities/currency, mutual confirmation, cancellation. |
 | F13 | History | Personal operations and owner administrative audit; no letter bodies in logs. |
 | F14 | Recovery | Reconnect, recover unknown request outcomes, preserve data and reservations across restarts. |
-| F15 | Settings | Character/group-specific pins and channel, chat consent, endpoint selection, display preferences. |
+| F15 | Settings | Character/group-specific pins and channel, startup-scoped chat permission, endpoint selection, display preferences. |
 | F16 | Service lifecycle | Version compatibility, maintenance messaging, export/deletion request, backups and support. |
 
 Group CRUD and recovery are necessary supporting features, not additional RP

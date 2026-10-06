@@ -15,8 +15,8 @@ Read the [documentation index](../README.md), [decision register](../decisions.m
 [version matrix](../engineering/versions.md) and [contributing](../../CONTRIBUTING.md).
 
 M0 in-game testing was reported successful by the maintainer on 2026-10-06.
-M1 adds temporary XIVAuth/PKCE probes, player context-menu inspection and explicitly
-approved chat submission. Six implemented feasibility routes are separate from
+M1 adds temporary XIVAuth/PKCE probes, player context-menu inspection and chat submission with
+once-per-startup permission. Six implemented feasibility routes are separate from
 three existing health/capabilities GETs. Durable authentication and all group,
 coin, potion, letter and trade operations remain planned in OpenAPI.
 

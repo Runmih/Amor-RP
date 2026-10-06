@@ -130,15 +130,24 @@ body, and locked state. Drafts are local; creating the persistent item spends qu
 
 ## Consumption and chat
 
-One explicit player confirmation consumes exactly one available potion. Require
-chat consent and a valid chosen Emote/Say/Party/specific Linkshell destination
-before requesting consumption. Count the final message as Unicode text elements,
+Ask for chat consent once at plugin startup and explain that posting is required
+for potion use. The answer applies to that entire startup: sending a message,
+changing the message/destination, switching characters/groups/backends or signing
+out does not reset it or trigger another permission question. Plugin reload or a
+new game start begins a new startup. The player can change the permission in
+settings; declining disables potion use/chat posting while other features remain
+available. Do not store this grant as permanent permission across restarts.
+
+One explicit player Use action consumes exactly one available potion. Require
+the existing startup chat grant and a valid chosen Emote/Say/Party/specific Linkshell
+destination before requesting consumption; do not ask for consent again.
+Count the final message as Unicode text elements,
 maximum 50 by default; reject line breaks, control characters, command injection,
 and unsupported game payloads. 1.0 has literal text, with no template substitution.
 Channel prefix and game-supplied character prefix are outside the authored limit.
 Test byte-length/game encoding separately; the character limit alone is insufficient.
 
-Show exact message, channel, quantity cost, group, and character before confirmation.
+Show exact message, channel, quantity cost, group, and character before the Use action.
 The server commits consumption and returns operation ID plus immutable message.
 Only that user action may attempt chat; server events never trigger chat.
 

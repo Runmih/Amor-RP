@@ -19,13 +19,13 @@ public sealed class MainWindow : Window, IDisposable
     private string backendUrl;
     private string status = "Use Check connection after starting the local server.";
 
-    public MainWindow(IPlayerState playerState, IPartyList party, Configuration configuration, Action save)
+    public MainWindow(IPlayerState playerState, IPartyList party, ChatConsentWindow chatConsent, Configuration configuration, Action save)
         : base("Amor RP###AmorRPMain")
     {
         this.playerState = playerState;
         this.configuration = configuration;
         this.save = save;
-        feasibility = new(playerState, party);
+        feasibility = new(playerState, party, chatConsent);
         backendUrl = configuration.BackendUrl;
         Size = new Vector2(650, 720);
         SizeCondition = ImGuiCond.FirstUseEver;

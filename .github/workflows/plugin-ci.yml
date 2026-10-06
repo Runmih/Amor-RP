@@ -23,7 +23,7 @@ jobs:
         run: |
           dotnet restore src/AmorRP.Plugin/AmorRP.Plugin.csproj --locked-mode
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          dotnet build src/AmorRP.Plugin/AmorRP.Plugin.csproj -c Release --no-restore
+          dotnet build src/AmorRP.Plugin/AmorRP.Plugin.csproj -c Release --no-restore -p:Platform=x64
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python scripts/check-plugin-package.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

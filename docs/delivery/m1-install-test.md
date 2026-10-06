@@ -1,7 +1,7 @@
 # Install and test M1
 
 M0 in-game testing was reported successful by the maintainer on 2026-10-06.
-M1 plugin version is `0.0.2.0`, server `0.0.2`, Dalamud API 15. Toolchain pins
+M1 plugin version is `0.0.2.1`, server `0.0.2`, Dalamud API 15. Toolchain pins
 remain those in the [version matrix](../engineering/versions.md).
 
 ## What this build provides
@@ -14,10 +14,11 @@ remain those in the [version matrix](../engineering/versions.md).
   change, expiry, cancellation and unload. Server restart requires fresh login.
 - A player context-menu entry that displays a captured name/home-world ID hint.
   It does not start a trade or authenticate the target.
-- A real chat test with message preview, 50 text-element/200-byte bounds and fresh
-  approval per send. Emote, Say, Party, eight Linkshell slots and eight Cross-world
-  Linkshell slots are explicitly selectable. Message/destination changes reset
-  approval. No consumption, automatic fallback or automatic repost occurs.
+- A real chat test with message preview, 50 text-element/200-byte bounds and one
+  permission question at plugin startup. Emote, Say, Party, eight Linkshell slots and eight Cross-world
+  Linkshell slots are explicitly selectable. Permission remains active across
+  sends, message/destination changes and character/group/backend switches. It is
+  adjustable in settings and is asked again at the next plugin startup. No consumption, automatic fallback or automatic repost occurs.
 
 These are isolated feasibility spikes. They do not implement the durable
 `/api/v1/auth/*` contract or authorize future product routes. No new DB migration
@@ -45,14 +46,20 @@ menu and chat without a server or XIVAuth account.
    objects, party/friend lists and any other menus you expect to use. NPC and
    inventory menus must not show a character entry. Menus with insufficient
    character evidence are deliberately omitted; record any missing player case.
-2. Choose Emote and inspect the preview. Check approval, click **Post approved
-   message once**, and verify the resulting text/channel. Approval must reset.
+2. Answer the startup chat permission question once. Choose **Allow for this
+   startup**, select Emote, inspect the preview and click **Post test message**.
+   Verify the resulting text/channel. Send a second message: permission remains
+   granted without another question.
 3. Repeat for Say, Party (also without a party), each joined Linkshell and each
    joined Cross-world Linkshell slot. Verify the **actual** destination; labels
    show slot numbers, so consult the game's channel names before sending.
 4. Select an unjoined slot: the game may reject the message; it must not be sent
    to a different channel. There is no programmatic delivery confirmation.
-5. Change text/destination after approval: posting must require new approval.
+5. Change text/destination and switch character/backend: startup permission
+   stays active and no permission question repeats. Disable posting in the chat
+   setting: the send button must stop working. Enable it manually to continue.
+   Reload the plugin: the startup question must appear once again. Decline it:
+   chat posting stays disabled while the other diagnostic features remain usable.
    Check 50/51-character boundaries, accented text, emoji, percent signs and
    repeated clicks. Newlines, bidi/control formatting and `<macro>` placeholders
    must be rejected. Emote automatically includes the character name in-game;

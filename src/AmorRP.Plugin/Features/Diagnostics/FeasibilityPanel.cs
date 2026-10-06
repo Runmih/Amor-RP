@@ -7,7 +7,7 @@ using Dalamud.Plugin.Services;
 
 namespace AmorRP.Plugin.Features.Diagnostics;
 
-public sealed class FeasibilityPanel(IPlayerState player, IPartyList party) : IDisposable
+public sealed class FeasibilityPanel(IPlayerState player, IPartyList party, ChatConsentWindow chatConsent) : IDisposable
 {
     private readonly IdentityProbeClient client = new();
     private CancellationTokenSource login = new();
@@ -21,7 +21,6 @@ public sealed class FeasibilityPanel(IPlayerState player, IPartyList party) : ID
     private CharacterTarget? target;
     private string message = "uses a test potion.";
     private int destination;
-    private bool consent;
     private DateTimeOffset lastPost;
 
     public void SelectTarget(CharacterTarget selected) => target = selected;
@@ -35,7 +34,6 @@ public sealed class FeasibilityPanel(IPlayerState player, IPartyList party) : ID
         if (scope != identityScope)
         {
             Clear();
-            consent = false;
             status = "Character or server changed. Local login credentials cleared.";
             identityScope = scope;
         }
@@ -102,17 +100,22 @@ public sealed class FeasibilityPanel(IPlayerState player, IPartyList party) : ID
         ImGui.Separator();
         ImGui.TextUnformatted("Public RP message test");
         ImGui.TextWrapped("This test sends a real in-game message. It does not create or consume an item. Choose the exact destination; unavailable channels may be rejected by the game. No fallback or automatic retry is used.");
-        if (ImGui.InputText("Message (50 characters)", ref message, 512)) consent = false;
-        if (ImGui.Combo("Destination", ref destination, ChatCommand.Destinations, ChatCommand.Destinations.Length)) consent = false;
+        ImGui.InputText("Message (50 characters)", ref message, 512);
+        ImGui.Combo("Destination", ref destination, ChatCommand.Destinations, ChatCommand.Destinations.Length);
         var safe = ChatCommand.TryCreate(message, destination, out var command);
         Wrapped(safe ? "Preview: " + command : "Use 1–50 characters (up to 200 UTF-8 bytes). Controls, formatting codes and <macro placeholders> are disallowed.");
-        ImGui.Checkbox("I approve posting this preview to this destination", ref consent);
-        var canPost = safe && consent && player.IsLoaded && (destination != 2 || party.Length > 0)
+        if (chatConsent.Answered)
+        {
+            var allowed = chatConsent.Allowed;
+            if (ImGui.Checkbox("Chat setting: enable RP posting for this startup", ref allowed)) chatConsent.Allowed = allowed;
+        }
+        else
+            ImGui.TextUnformatted("Answer the startup chat permission question before posting.");
+        var canPost = safe && chatConsent.Allowed && player.IsLoaded && (destination != 2 || party.Length > 0)
             && DateTimeOffset.UtcNow - lastPost >= TimeSpan.FromSeconds(3);
         ImGui.BeginDisabled(!canPost);
-        if (ImGui.Button("Post approved message once"))
+        if (ImGui.Button("Post test message"))
         {
-            consent = false;
             lastPost = DateTimeOffset.UtcNow;
             status = GameChatSender.Send(message, destination)
                 ? "Message submitted to the game. Check the selected channel; delivery is not confirmed."

@@ -25,8 +25,11 @@ unformatted helpers. Use Dalamud WindowSystem for all regular windows.
 2. Verify the chosen character. Show status and expiration during login; retry
    never skips verification. Never ask for Square Enix credentials.
 3. Offer Create group or Join with invitation. Display remaining membership slots.
-4. Explain potion chat permission separately. Player may defer consent and still
-   use other features. Consent is revocable in settings.
+4. Ask for potion/chat permission once when the plugin starts and explain that
+   chat posting is required for potion use. Allow or Decline applies to this entire
+   startup; other features remain available after declining. Consent is adjustable
+   in settings. Do not repeat the question after posts, message/channel edits,
+   character/group/backend switches or login/logout. Ask again only on plugin restart.
 
 Local character switch immediately clears prior character views, stops event
 subscriptions, and cancels pending UI actions. Authenticate the new character;
@@ -52,7 +55,8 @@ identified consistently; obsolete pins can be removed. Empty state links to exte
 inventory. Reserved count is visible. Offline state disables Use.
 
 Use dialog shows group, potion revision, exact message, selected destination,
-"Consumes 1", and Confirm/Cancel. Consent checkbox explains required chat posting.
+"Consumes 1", and Confirm/Cancel for the item-use action. Use the existing startup
+chat grant; no per-use consent checkbox or additional chat permission prompt.
 Destination picker includes specific Linkshell slots/names available to the current
 character; remember selection per character/group. No automatic fallback to current
 chat channel. Show explicit failed/unknown outcome rather than optimistic depletion.
@@ -111,7 +115,8 @@ completion shows "Checking trade result" until authoritative reconciliation.
 
 ## Settings and failure handling
 
-Service URL, login/logout/session management, chat consent, destination, compact
+Service URL, login/logout/session management, startup-scoped chat permission,
+destination, compact
 view, pins, scale, and support/export/deletion instructions. Changing backend
 requires confirmation, drops sessions and scopes caches to that backend. Do not send
 the previous backend's credentials to the new URL. Release builds require HTTPS.
