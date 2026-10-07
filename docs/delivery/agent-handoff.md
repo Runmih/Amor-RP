@@ -36,8 +36,9 @@ Neither a Render service nor XIVAuth application has been set up by the maintain
 The M1 guide supplies the exact callback and configuration sequence.
 
 Finish M1's live exit checklist before calling it accepted. Honor A16: live paid
-character rename/transfer tests are waived; use provider source
-review and automated stable-ID simulations and record the paid checks as skipped.
+character rename/transfer tests are waived and recorded as skipped. There is no
+separate simulated-rename gate; normal auth tests cover verified ID/key mapping
+and ownership authorization. Existing-character lookup uses IDs/key, never name/world.
 Other live provider/game checks still apply. Any follow-up should
 preserve individual action permissions, independent character allowances including
 alts, isolated groups and server-authoritative mutations. Update rules, contracts,

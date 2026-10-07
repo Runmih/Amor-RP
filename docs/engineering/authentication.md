@@ -76,6 +76,8 @@ the stored Lodestone ID and verify the ownership key. The reviewed provider has
 alone never proves ownership. After verified profile refresh, update display name
 and home world on the existing internal Character record. Do not create a replacement
 record, reset quotas, rewrite asset owners or require joining groups again.
+Returning authentication and asset ownership lookups must use verified IDs/key;
+do not search by name/world or fall back to them to resolve an existing binding.
 Never accept a submitted new name/world as verification or silently skip matching
 the logged-in game character. If provider profile data is stale, request refresh and
 report the verification delay; preserve every existing asset and binding while it
@@ -84,12 +86,12 @@ is resolved. This may require fresh verification, not asset migration or loss.
 M1 currently performs a name/world filter to locate the selected character during
 its temporary login probe. It does not yet implement returning durable bindings
 or own any inventories. Implement the stable-ID continuity flow with durable auth.
-Its continuity gate uses provider source review and automated simulations of name
-and world changes while verified Lodestone ID and ownership key remain unchanged.
-Live paid rename/transfer tests are waived because of their real-money cost (A16);
-record them as skipped, not passed. This accepts the reviewed identifier stability
-assumption without claiming a live paid operation was demonstrated. Other live
-provider authentication checks remain required.
+Provider identifier derivation is documented above. Live paid rename/transfer
+tests are waived because of their real-money cost (A16), and no separate simulated
+rename/transfer gate is required. Normal authentication tests cover verified
+ID/key resolution, correct ownership authorization and reuse of the existing
+internal Character record. This does not claim a paid operation was demonstrated.
+Other live provider authentication checks remain required.
 
 ## Adapter boundary
 
@@ -109,7 +111,7 @@ no issuer fetched from a submitted token or client-controlled URL.
 | Login in deployed environment | Callback/HTTPS/proxy configuration tested |
 | Wrong/unverified character, expired state, callback replay rejected | Spoofing/login takeover prevented |
 | Reauthentication/refresh/logout/revocation tested | Sessions do not outlive intended ownership authority |
-| Rename/world transfer continuity simulated with stable verified IDs; source reviewed; paid live tests waived; unlink/relink behavior documented | Avoid inaccessible or reassigned inventories without requiring paid services |
+| Verified ID/key resolves the existing character; wrong ownership rejected; unlink/relink behavior documented | Correct identity/asset authorization; paid rename/transfer tests and a separate simulated-rename gate are not required |
 | Provider outage behavior | Existing unexpired sessions may continue; new login/renewal fails clearly |
 | Development fixtures isolated from release | No production authentication bypass |
 

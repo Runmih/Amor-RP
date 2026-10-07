@@ -147,11 +147,11 @@ Provider-side authorization can also be revoked in XIVAuth's own account setting
   fresh login. Change game character/backend during browser login: old completion
   must never appear as the new character's session.
 - Demonstrate provider revocation and unlink/relink; record hosted behavior and
-  ownership key changes. For rename/home-world transfer, review provider identity
-  derivation and use stable-ID fixtures; durable auth must later demonstrate asset
-  preservation through automated simulations. Live paid rename/transfer tests are
-  waived by A16 and recorded as skipped for cost, not passed. Do not require paid
-  services to complete M1 or release; keep explicit recovery for changed bindings.
+  ownership key changes. Provider identity derivation is documented; normal durable
+  authentication tests must verify ID/key resolution and ownership authorization.
+  Live paid rename/transfer tests are waived by A16 and recorded as skipped for
+  cost, not passed; no separate simulated-rename test is required. Do not require
+  paid services to complete M1 or release; keep explicit recovery for changed bindings.
 - Complete actual context-menu and channel evidence above. Only then accept M1.
 
 ## Build, automate and package

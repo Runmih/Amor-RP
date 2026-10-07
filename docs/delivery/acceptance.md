@@ -8,7 +8,7 @@ tests. In-game behavior requires human tests in FFXIV.
 
 | Features | Required evidence |
 | --- | --- |
-| F01 login | Verified selected character; wrong identity, callback replay, expiry, refresh/logout; simulated rename/world continuity with stable verified IDs (paid live checks waived by A16) |
+| F01 login | Verified ID/key resolves the existing character; wrong ownership, callback replay, expiry, refresh/logout; paid rename/transfer checks waived and no separate simulated-rename gate (A16) |
 | F02 groups | 3/6 caps under concurrency; invites expire/revoke; leave/remove/restore; accepted transfer; deletion |
 | F03 switching | Correct group/character always shown; pending trade reconciled before switching |
 | F04 permissions | Each grant controls only its action; revoke in open dialog; owner transfer updates authority |
@@ -27,18 +27,14 @@ tests. In-game behavior requires human tests in FFXIV.
 
 ## Essential invariant scenarios
 
-For durable authentication, create a character with coins, items, memberships,
-permissions and spent weekly allowance. Simulate a provider-verified rename, then
-separately a home-world transfer, retaining the verified Lodestone ID and ownership
-key in fixtures. Verify the same internal Character ID and unchanged product
-records after revalidation; display/context fields update. Repeat with
-stale provider profile data and prove assets remain intact during refresh/retry.
-An unrelated character taking the old name/world cannot access those assets.
-Provider unlink/relink/account changes are tested separately and must not silently
-transfer ownership. Review the provider's identifier/key derivation and record
-fixture provenance. Live paid rename/transfer tests are explicitly waived by A16:
-record them as skipped for cost, not passed. They do not block milestone/release
-acceptance. Other live login/provider checks remain required.
+Normal durable authentication tests must verify that a provider-verified ID/key
+resolves the existing internal Character record and authorizes that character's
+data. Client-supplied IDs alone and another ownership binding must not authorize
+it. Cover returning login/session renewal and explicit binding recovery within
+the authentication suite. Name/world is never an ownership lookup or fallback.
+Live paid rename/transfer checks are waived by A16 and recorded as skipped for
+cost; no separate simulated-rename/transfer gate is required. Other live
+login/provider checks remain required.
 
 1. Substitute a group B holding/definition/member/currency/trade/category ID into
    every applicable group A endpoint; deny without mutation or private-data leak.
