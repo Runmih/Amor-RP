@@ -8,7 +8,7 @@ tests. In-game behavior requires human tests in FFXIV.
 
 | Features | Required evidence |
 | --- | --- |
-| F01 login | Verified selected character; wrong identity, callback replay, expiry, refresh/logout and rename cases |
+| F01 login | Verified selected character; wrong identity, callback replay, expiry, refresh/logout; simulated rename/world continuity with stable verified IDs (paid live checks waived by A16) |
 | F02 groups | 3/6 caps under concurrency; invites expire/revoke; leave/remove/restore; accepted transfer; deletion |
 | F03 switching | Correct group/character always shown; pending trade reconciled before switching |
 | F04 permissions | Each grant controls only its action; revoke in open dialog; owner transfer updates authority |
@@ -28,13 +28,17 @@ tests. In-game behavior requires human tests in FFXIV.
 ## Essential invariant scenarios
 
 For durable authentication, create a character with coins, items, memberships,
-permissions and spent weekly allowance. Rename it, then separately transfer its
-home world. Verify the same internal Character ID and unchanged product records
-after fresh provider verification; display/context fields update. Repeat with
+permissions and spent weekly allowance. Simulate a provider-verified rename, then
+separately a home-world transfer, retaining the verified Lodestone ID and ownership
+key in fixtures. Verify the same internal Character ID and unchanged product
+records after revalidation; display/context fields update. Repeat with
 stale provider profile data and prove assets remain intact during refresh/retry.
 An unrelated character taking the old name/world cannot access those assets.
 Provider unlink/relink/account changes are tested separately and must not silently
-transfer ownership. Record real hosted provider evidence, not only mocked fixtures.
+transfer ownership. Review the provider's identifier/key derivation and record
+fixture provenance. Live paid rename/transfer tests are explicitly waived by A16:
+record them as skipped for cost, not passed. They do not block milestone/release
+acceptance. Other live login/provider checks remain required.
 
 1. Substitute a group B holding/definition/member/currency/trade/category ID into
    every applicable group A endpoint; deny without mutation or private-data leak.

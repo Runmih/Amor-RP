@@ -35,7 +35,10 @@ and live hosted XIVAuth/Render login need separately recorded evidence.
 Neither a Render service nor XIVAuth application has been set up by the maintainer.
 The M1 guide supplies the exact callback and configuration sequence.
 
-Finish M1's live exit checklist before calling it accepted. Any follow-up should
+Finish M1's live exit checklist before calling it accepted. Honor A16: live paid
+character rename/transfer tests are waived; use provider source
+review and automated stable-ID simulations and record the paid checks as skipped.
+Other live provider/game checks still apply. Any follow-up should
 preserve individual action permissions, independent character allowances including
 alts, isolated groups and server-authoritative mutations. Update rules, contracts,
 interface behavior and acceptance criteria alongside product implementation.
