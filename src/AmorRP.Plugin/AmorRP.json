@@ -2,7 +2,7 @@
   "Name": "Amor RP",
   "Author": "Runmih",
   "Punchline": "Roleplay currency and items in closed groups.",
-  "Description": "M2: saved XIVAuth character login, isolated groups, invitations, individual action grants, weekly policies, currency and history. Potion/letter inventory and trading follow in later milestones.",
+  "Description": "M3: saved XIVAuth login, closed groups, currency icons, potion recipes, character allowances, letters and compact/extended inventory. Trading follows in M4.",
   "RepoUrl": "https://github.com/Runmih/Amor-RP",
   "Tags": [
     "roleplay",

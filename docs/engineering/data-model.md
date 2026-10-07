@@ -1,7 +1,8 @@
 # Data model and transaction boundaries
 
 Proposed product schema. M0 has an infrastructure bootstrap migration; M1 identity
-probes are memory-only. M2 implements the identity/session/group/currency subset described below; inventory/trades and full lifecycle records remain planned. UUIDs are
+probes are memory-only. M2 implements identity/session/group/currency; M3 adds catalog revisions, holdings,
+letters, quota snapshots and currency assets. Trades/full lifecycle remain planned. UUIDs are
 opaque server IDs. All timestamps are UTC `timestamptz`. Revision counters are
 monotonic integers. Monetary amounts use checked signed `bigint`; positive deltas
 create supply, negative deltas destroy supply. Text is bounded by validated service
@@ -26,7 +27,7 @@ options, with plain-text storage.
 | Holding | Group/character/ID, type ID, definition revision or instance ID, owned quantity, reserved quantity, version |
 | LetterInstance | Group/ID, author ID, title/body, category ID, content version, first-traded timestamp |
 | Currency | Group/ID, name, legacy symbol, nullable icon asset ID, version; one/group uniqueness in 1.0 |
-| MediaAsset (planned M3) | Opaque ID, group ID, normalized static PNG bytes, content hash, validated dimensions/length, creator/time; initially currency icons only |
+| MediaAsset (M3) | Opaque ID, group ID, normalized static PNG bytes, content hash, validated dimensions/length, creator/time; initially currency icons only |
 | CurrencyBalance | Group/character/currency unique tuple, owned amount, reserved amount, version |
 | CurrencyLedger | Operation/group/currency, affected character, signed delta, reason/transfer counterpart, before/after, actor |
 | QuotaUsage | Group/character/kind/period unique tuple, limit snapshot, used, policy revision |
@@ -82,7 +83,7 @@ and short-lived auth cleanup, never the personal financial history.
 | Potion production | Definition/current policy lock, quota debit, holding credit, operation/audit/idempotency/event |
 | Letter creation | Quota debit, instance + holding, operation/audit/idempotency/event |
 | Consumption/discard/removal | Available quantity decrement, operation/audit/idempotency/event |
-| Currency icon replacement/removal (planned M3) | Same-group media asset/reference, currency version, operation/audit/idempotency; preserve balances |
+| Currency icon replacement/removal (M3) | Same-group media asset/reference, currency version, operation/audit/idempotency; preserve balances |
 | Currency adjustment | Available balance, supply ledger, operation/audit/idempotency/event |
 | Offer edit | Trade revision, own lines, old/new reservations, confirmations cleared, event |
 | Second confirmation | Both inventories/balances, balanced trade ledger, letter locks, release reservations, terminal trade, history |
@@ -147,9 +148,9 @@ A future multiple-currency migration extracts balances keyed by stable CurrencyI
 public IDs, actor ownership and integer-string amounts need no replacement.
 Operator retention/purge is an M5 release gate; never reset usage on rejoin.
 
-## Planned M3 currency media mapping
+## M3 currency media mapping
 
-Add a group-scoped asset table for small normalized currency images and a nullable
+M3 adds a group-scoped asset table for small normalized currency images and a nullable
 asset reference beside the existing stable currency fields. Enforce same-group
 foreign keys and validated dimensions/size; use PostgreSQL bytes rather than
 Render's ephemeral filesystem. Migrate existing M2 currencies without changing IDs
@@ -158,3 +159,11 @@ an icon commits bytes/reference/version and the audited replay receipt atomicall
 Retire superseded bytes once no current reference or documented replay/retention
 requirement needs them; bound storage and include media in backup/restore checks.
 This is a reusable asset boundary, not a general attachment feature in 1.0.
+
+`categories`, `item_definitions` and `definition_revisions` use composite group keys;
+`holdings` references same-group membership/category and either definition revision
+or letter. Quantities/reservations and distinct payloads have database checks.
+`quota_usage` keys group/character/kind/period and stores its limit snapshot/used
+count. `groups.InventoryVersion` advances for catalog and inventory writes and
+is exposed as list snapshotVersion; updates serialize with membership/currency
+through the same group lock. Letter edits change the existing holding name/version.

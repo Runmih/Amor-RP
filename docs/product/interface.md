@@ -181,3 +181,14 @@ authority denials and stale versions; expandable troubleshooting shows sanitized
 HTTP status, error code, request ID and operation key without credentials/content.
 Only a committed removal appears as a successful history event.
 See the [M2 feedback plan](../delivery/m2-feedback-m3-plan.md) for implementation order.
+
+
+## M3 test-build navigation
+
+Main window `/amorrp` uses the shared dropdown above Groups, Members & currency,
+Consumables, Inventory, Create items, Owner settings and History & devices.
+`/amorrp compact` or Open compact consumables toggles a separate small window with
+the same character/group selector, pinning, exact use preview and chosen channel.
+Both visible windows share one async request coordinator and refresh clock.
+M3 includes the functional flows above; final styling remains M5. Inventory/use
+and private-letter acceptance are in the [M3 guide](../delivery/m3-install-test.md).

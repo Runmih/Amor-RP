@@ -1,3 +1,6 @@
+using AmorRP.Server.Features.Catalog;
+using AmorRP.Server.Features.Inventory;
+using AmorRP.Server.Features.Media;
 using AmorRP.Server.Features.Authentication;
 using AmorRP.Server.Features.Groups;
 using AmorRP.Server.Features.Currency;
@@ -41,6 +44,9 @@ builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<GroupAccess>();
 builder.Services.AddScoped<GroupService>();
 builder.Services.AddScoped<CurrencyService>();
+builder.Services.AddScoped<CatalogService>();
+builder.Services.AddScoped<InventoryService>();
+builder.Services.AddScoped<CurrencyIconService>();
 builder.Services.AddScoped<HistoryService>();
 builder.Services.AddHttpClient<IDurableIdentityProvider, DurableXivAuthProvider>(client => {
     client.Timeout = TimeSpan.FromSeconds(15); client.MaxResponseContentBufferSize = 65536;
@@ -121,6 +127,9 @@ app.MapFeasibilityEndpoints();
 app.MapAuthenticationEndpoints();
 app.MapGroupEndpoints();
 app.MapCurrencyEndpoints();
+app.MapCatalogEndpoints();
+app.MapInventoryEndpoints();
+app.MapCurrencyIconEndpoints();
 app.MapHistoryEndpoints();
 await app.RunAsync();
 

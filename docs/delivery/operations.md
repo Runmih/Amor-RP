@@ -105,3 +105,14 @@ reviewed migration through the existing pre-deploy command before the new API.
 Probe callbacks and product callbacks have separate options; disable the old
 probe surface when it is no longer needed. CLI local native execution can use
 `deploy/.env.example` for variable names without storing real values in source.
+
+## M3 inventory/media upgrade
+
+Use [M3 setup](m3-install-test.md) and branch `m3-inventory`. Preserve the database
+and existing vault/XIVAuth secrets. Back up before the additive PlayableInventory
+migration; deploy migration before serving the new binary. Currency icons use
+small normalized PostgreSQL assets and are included in database backups. Old
+media bytes are deleted atomically after a successful replacement; receipts
+retain identifiers, not historical image content. Restore a matching DB/binary
+pair if rollback is needed. Existing Render resources suffice; no new service
+or storage account is provisioned by M3.

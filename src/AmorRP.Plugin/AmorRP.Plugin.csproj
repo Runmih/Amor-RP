@@ -2,13 +2,14 @@
   <PropertyGroup>
     <AssemblyName>AmorRP</AssemblyName>
     <RootNamespace>AmorRP.Plugin</RootNamespace>
-    <Version>0.0.3.0</Version>
+    <Version>0.0.4.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Description>Roleplay currency and items in closed groups. M2 groups, permissions and currency.</Description>
+    <Description>Roleplay currency and items in closed groups. M3 inventory, potions, letters and currency.</Description>
     <PackageProjectUrl>https://github.com/Runmih/Amor-RP</PackageProjectUrl>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Assets/default-coin.png" />
     <None Include="../../licenses/AmorRP.licenses.json" Link="AmorRP.licenses.json" CopyToOutputDirectory="PreserveNewest" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.12" />
     <ProjectReference Include="../AmorRP.Contracts/AmorRP.Contracts.csproj" />

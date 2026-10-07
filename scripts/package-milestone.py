@@ -32,7 +32,8 @@ with zipfile.ZipFile(artifacts / f"AmorRP-{milestone}-server.zip", "w", zipfile.
     for path in sorted(server.rglob("*")):
         if path.is_file():
             archive.write(path, path.relative_to(server))
-    archive.write(root / "LICENSE.md", "LICENSE.md")
+    if not (server / "LICENSE.md").is_file():
+        archive.write(root / "LICENSE.md", "LICENSE.md")
 with zipfile.ZipFile(artifacts / f"AmorRP-{milestone}-source.zip", "w", zipfile.ZIP_DEFLATED) as archive:
     excluded = {".git", ".tools", ".vs", ".idea", "node_modules", "bin", "obj", "artifacts", "__pycache__", "TestResults", ".venv"}
     for directory, folders, files in os.walk(root):

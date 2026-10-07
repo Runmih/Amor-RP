@@ -38,7 +38,7 @@ src/AmorRP.Plugin/
 ```
 
 The provider's durable adapter remains next to its authentication feature in M2;
-M1's adapter stays in Feasibility. M3 adds Inventory/type folders when implemented.
+M1's adapter stays in Feasibility. M3 implements inventory/catalog/media folders below.
 GroupService's partial files keep the shared transaction/access boundary while
 separating memberships, invitations and ownership for navigation. Persistence
 entities never leave Server; only Contracts cross into Plugin.
@@ -169,3 +169,26 @@ future local overrides and credentials must remain ignored.
 Separate plugin manifest generation from runtime configuration. Recreate the
 solution and metadata with real product values. New lifecycle code must unregister
 commands/UI/context subscriptions on disposal; no sample behavior needs preserving.
+
+## M3 implemented feature map
+
+| Change | Source location |
+| --- | --- |
+| Inventory wire data | `Contracts/Inventory/`, one public record per file |
+| Safe plain/chat text | `Core/Items/ItemText.cs` |
+| Categories and immutable potion revisions | `Server/Features/Catalog/` |
+| Holdings, production, usage, consume/discard/removal | `Server/Features/Inventory/InventoryService.cs` |
+| Private letter read/edit rules | `Server/Features/Inventory/InventoryService.Letters.cs` |
+| Currency upload/normalize/authenticated read | `Server/Features/Media/` |
+| Composite keys/constraints and migration | `Server/Infrastructure/Persistence/InventoryModel.cs`, entity files and PlayableInventory migration |
+| Shared async product state | `Plugin/Features/Groups/GroupsPanel.cs` |
+| Group forms/removal/icon editor | `Plugin/Features/Groups/GroupScreens.cs`, `GroupInteractionState.cs` |
+| Inventory, potion, letter and catalog screens | Named `*Screens.cs` files in `Plugin/Features/Groups/`; they share the selected verified group state |
+| Separate small window | `Plugin/Features/Inventory/CompactWindow.cs` |
+| Bounded authorized texture lifecycle | `Plugin/Services/Media/CurrencyIconCache.cs` |
+| Real DB accounting/privacy/upgrade checks | `tests/AmorRP.Server.IntegrationTests/InventoryTests.cs`, `InventoryUpgradeTests.cs`; same partial foundation fixture |
+
+Shared UI partials stay beside group state so they cannot silently select another
+character/group; type-specific potion and letter files remain easy to locate.
+Trading has no placeholder implementation. Future item types require their own
+behavior/contracts/renderer and deliberate schema migration, preserving stable IDs.

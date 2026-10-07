@@ -46,4 +46,4 @@ jobs:
           dotnet test tests/AmorRP.Server.IntegrationTests -c Release --no-restore
           dotnet ef migrations has-pending-model-changes --project src/AmorRP.Server --no-build --configuration Release
       - name: Build server image
-        run: docker build -f deploy/Dockerfile -t amorrp-server:m2 .
+        run: docker build -f deploy/Dockerfile -t amorrp-server:m3 .

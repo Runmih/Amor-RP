@@ -82,9 +82,9 @@ public sealed class BootstrapTests : IAsyncLifetime
         var result = await client.GetFromJsonAsync<CapabilitiesResponse>("/api/v1/capabilities", TestContext.Current.CancellationToken);
         Assert.NotNull(result);
         Assert.Equal("1", result.ApiVersion);
-        Assert.Empty(result.SupportedTypes);
+        Assert.Equal(new[] { "potion", "letter" }, result.SupportedTypes.Select(x => x.Id));
         Assert.Equal(new[] { "currency.manage", "items.potion.create", "inventory.remove" }, result.GrantableCapabilities);
-        Assert.Empty(result.ChatDestinationKinds);
+        Assert.Equal(new[] { "emote", "say", "party", "linkshell", "crossworld-linkshell" }, result.ChatDestinationKinds);
         Assert.Equal(3, result.Limits.OwnedGroups);
         Assert.Equal(6, result.Limits.JoinedGroups);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsync("/api/v1/groups", null, TestContext.Current.CancellationToken)).StatusCode);

@@ -2,7 +2,7 @@
   "project": {
     "name": "Amor RP",
     "license": "AGPL; see the matching source bundle's LICENSE.md",
-    "source": "https://github.com/Runmih/Amor-RP/tree/m2-foundation"
+    "source": "https://github.com/Runmih/Amor-RP/tree/m3-inventory"
   },
   "dependencies": [
     {

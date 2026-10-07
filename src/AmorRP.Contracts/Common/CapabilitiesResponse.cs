@@ -19,4 +19,5 @@ public sealed record PublicLimits(
     int MaxPageSize, int MaxHoldingsPerCharacterGroup, int MaxTradeLinesPerSide,
     int MaxCreationQuantity, int TradeLifetimeSeconds, string ResetWeekdayUtc,
     string ResetTimeUtc, int MaxRequestBytes, int MaxWeeklyPotionPoints = 1000000, int MaxWeeklyLetters = 10000,
-    int MaxActiveInvitationsPerGroup = 100, int OwnershipProposalHours = 24);
+    int MaxActiveInvitationsPerGroup = 100, int OwnershipProposalHours = 24, int MaxCurrencyIconBytes = 262144,
+    int MaxCurrencyIconDimension = 128, int MaxCategoriesPerGroup = 100, int MaxDefinitionsPerGroup = 1000);

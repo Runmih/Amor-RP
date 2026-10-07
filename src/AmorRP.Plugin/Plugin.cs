@@ -14,18 +14,22 @@ public sealed class Plugin : IDalamudPlugin
     private readonly ICommandManager commands;
     private readonly WindowSystem windows = new("AmorRP");
     private readonly MainWindow mainWindow;
+    private readonly AmorRP.Plugin.Features.Inventory.CompactWindow compactWindow;
     private readonly ChatConsentWindow chatConsent = new();
     private readonly CharacterContext context;
 
     public Plugin(IDalamudPluginInterface pluginInterface, ICommandManager commands, IPlayerState playerState,
-        IContextMenu contextMenu, IPartyList party)
+        IContextMenu contextMenu, IPartyList party, ITextureProvider textures)
     {
         this.pluginInterface = pluginInterface;
         this.commands = commands;
         var configuration = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-        mainWindow = new MainWindow(playerState, party, chatConsent, configuration, () => pluginInterface.SavePluginConfig(configuration));
+        mainWindow = new MainWindow(playerState, party, chatConsent, configuration, () => pluginInterface.SavePluginConfig(configuration), textures);
+        compactWindow = new(mainWindow.DrawCompact);
+        mainWindow.OpenCompact = () => compactWindow.IsOpen = true;
         context = new(contextMenu, mainWindow.SelectTarget);
         windows.AddWindow(mainWindow);
+        windows.AddWindow(compactWindow);
         windows.AddWindow(chatConsent);
         commands.AddHandler(Command, new CommandInfo(OnCommand) { HelpMessage = "Open Amor RP." });
         pluginInterface.UiBuilder.Draw += windows.Draw;
@@ -33,7 +37,8 @@ public sealed class Plugin : IDalamudPlugin
         pluginInterface.UiBuilder.OpenConfigUi += Open;
     }
 
-    private void OnCommand(string command, string arguments) => mainWindow.Toggle();
+    private void OnCommand(string command, string arguments)
+    { if (arguments.Trim().Equals("compact", StringComparison.OrdinalIgnoreCase)) compactWindow.Toggle(); else mainWindow.Toggle(); }
     private void Open() => mainWindow.IsOpen = true;
 
     public void Dispose()

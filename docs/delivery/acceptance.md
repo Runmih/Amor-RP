@@ -124,3 +124,8 @@ and 60-second read refresh preserving drafts, and success-only join/create reset
 Currency icons are an explicit 1.0 requirement, including valid format/dimension
 and malformed/animated/oversize rejection, authorization, persistence and texture
 lifecycle. See the [implementation plan](m2-feedback-m3-plan.md).
+
+M3 build evidence: 76 tests passed on 2026-10-07, including meaningful inventory
+accounting, private-letter, image, removal and M2-upgrade checks. M3 is built for
+live acceptance; this does not complete the in-game gates or M4/M5 release criteria.
+See the [M3 test guide](m3-install-test.md).

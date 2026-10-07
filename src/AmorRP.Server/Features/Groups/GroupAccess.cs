@@ -28,7 +28,7 @@ public sealed class GroupAccess(AmorDbContext db)
         ApiFault.Require(member != null && (!activeOnly || member.Status == "active"), 404, "not_found", "Group member not found.");
         return member!;
     }
-    public static AmorRP.Contracts.Currency.Currency Currency(GroupRow group) => new(group.CurrencyId, group.Id, group.CurrencyName, group.CurrencySymbol, group.CurrencyVersion);
+    public static AmorRP.Contracts.Currency.Currency Currency(GroupRow group) => new(group.CurrencyId, group.Id, group.CurrencyName, group.CurrencySymbol, group.CurrencyVersion, group.CurrencyIconAssetId);
     public static Balance Balance(GroupRow group, MembershipRow member) => new(group.CurrencyId, member.CharacterId,
         member.Owned.ToString(System.Globalization.CultureInfo.InvariantCulture), member.Reserved.ToString(System.Globalization.CultureInfo.InvariantCulture),
         (member.Owned - member.Reserved).ToString(System.Globalization.CultureInfo.InvariantCulture), member.BalanceVersion);

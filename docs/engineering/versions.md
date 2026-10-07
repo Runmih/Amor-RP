@@ -164,3 +164,14 @@ new version evidence. `System.Security.Cryptography.ProtectedData` is pinned to
 Server envelope encryption uses the .NET 10 AES-GCM implementation; OAuth/PKCE
 uses .NET HTTP and WebUtilities against the same reviewed provider source.
 Durable flow adds minimal `refresh` scope; hosted behavior is an M2 check.
+
+## M3 additions
+
+Plugin `0.0.4.0`, server/minimum client `0.0.4`, API v1, Dalamud API 15.
+SkiaSharp and SkiaSharp.NativeAssets.Linux.NoDependencies `4.153.1` are pinned
+server-only image dependencies. Static PNG/JPEG/WebP decode/normalize passed on
+Linux; matching upstream MIT and third-party notices ship with the server.
+Current NuGet vulnerability scan reported no known vulnerable server packages.
+Existing SDK, EF/Npgsql/PostgreSQL, Dalamud host and XIVAuth targets are unchanged.
+See [M3 checks](../delivery/m3-install-test.md); game rendering and hosted container
+behavior remain separate acceptance evidence.

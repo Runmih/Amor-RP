@@ -51,7 +51,7 @@ public sealed partial class GroupService(AmorDbContext db, SessionAccess session
             CurrentPotionPoints = body.WeeklyPotionPoints, NextPotionPoints = body.WeeklyPotionPoints,
             CurrentLetters = body.WeeklyLetters, NextLetters = body.WeeklyLetters };
         var member = new MembershipRow { GroupId = group.Id, CharacterId = session.CharacterId };
-        db.Groups.Add(group); db.Memberships.Add(member);
+        db.Groups.Add(group); AmorRP.Server.Features.Catalog.CatalogService.Seed(db, group.Id); db.Memberships.Add(member);
         var op = commands.New(http, scope, body, session.CharacterId, group.Id, "group.create");
         http.Response.Headers.ETag = CommandStore.ETag("group", group.Id, group.Version);
         var result = await commands.SaveAsync(http, op, new CommandResult<Group>(op.Id, await access.ViewAsync(group, member, time.GetUtcNow(), ct)), ct);

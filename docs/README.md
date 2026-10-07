@@ -4,8 +4,9 @@ Specification date: 2026-10-06. Target: Amor RP 1.0.
 
 This documentation specifies the intended product. M0 implements three public
 server GETs and the diagnostic plugin; M1 adds six isolated feasibility operations.
-M2 implements saved authentication and the group/currency foundation; inventory and trading remain planned.
-Use the [M2 installation/test guide](delivery/m2-install-test.md) for actual commands
+M3 adds potion/letter inventory, weekly usage, custom currency icons and carried
+M2 fixes; trading remains planned.
+Use the [M3 installation/test guide](delivery/m3-install-test.md) for actual commands
 and verification evidence, and the [agent handoff](delivery/agent-handoff.md) when
 continuing in another environment. Numeric operational limits and
 unconfirmed product choices are recommendations, identified in the decision
@@ -54,4 +55,4 @@ boundary exists. Generated endpoint tables must match OpenAPI.
 - **Reservation:** items/currency held for an open trade, still owned by the offerer.
 - **Operation ID:** durable identifier for a completed inventory/currency mutation.
 
-Current feedback and next implementation order: [M2 feedback/M3 plan](delivery/m2-feedback-m3-plan.md). M2 has a reported removal issue; M3 carries its fix and the requested display/currency-icon changes.
+Carried feedback and implementation record: [M2 feedback/M3 plan](delivery/m2-feedback-m3-plan.md). M3 includes the removal fix and requested display/currency-icon changes; live acceptance remains pending.

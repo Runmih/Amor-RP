@@ -38,6 +38,11 @@ join/creation form resets, and owner-uploaded PNG/JPEG/WebP currency icons up to
 128x128. Icon upload is backend functionality and an explicit expansion of 1.0
 scope. Cosmetic polish stays M5; usability improvements start now.
 
+M3 is implemented as plugin 0.0.4.0/server 0.0.4 for acceptance; see the
+[M3 upgrade/test guide](m3-install-test.md). The removal source fix and inventory
+paths have automated PostgreSQL coverage. Live kick/rendering/chat evidence remains
+required; no M2.1 release was created.
+
 ## Dependency priorities
 
 - M1 precedes large UI investment: identity, home-world context extraction and

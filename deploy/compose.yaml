@@ -19,7 +19,7 @@ services:
     build:
       context: ..
       dockerfile: deploy/Dockerfile
-    image: amorrp-server:m2
+    image: amorrp-server:m3
     command: ["--migrate"]
     environment:
       ConnectionStrings__Database: "Host=database;Database=amorrp;Username=amorrp;Password=amorrp-local-only"
@@ -27,7 +27,7 @@ services:
       database: {condition: service_healthy}
 
   server:
-    image: amorrp-server:m2
+    image: amorrp-server:m3
     ports: ["127.0.0.1:5080:8080"]
     environment:
       ConnectionStrings__Database: "Host=database;Database=amorrp;Username=amorrp;Password=amorrp-local-only"

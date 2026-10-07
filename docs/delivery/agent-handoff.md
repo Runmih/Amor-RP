@@ -1,61 +1,54 @@
 # Agent handoff
 
-Use branch `m2-foundation` of [Runmih/Amor-RP](https://github.com/Runmih/Amor-RP).
-It includes the M0/M1 baseline, M2 source and full planned 1.0 specification.
-Earlier milestone branches remain available. Credentials, databases and artifacts
-are excluded from Git.
+Use branch `m3-inventory` of [Runmih/Amor-RP](https://github.com/Runmih/Amor-RP).
+It contains the M0/M1 baseline, M2 foundation, M3 inventory alpha and planned 1.0
+specification. Earlier milestone branches remain available. Credentials, databases
+and generated artifacts are excluded from Git.
 
 ```sh
-git clone --branch m2-foundation https://github.com/Runmih/Amor-RP.git
+git clone --branch m3-inventory https://github.com/Runmih/Amor-RP.git
 ```
 
-Read the [documentation index](../README.md), [M2 installation/test guide](m2-install-test.md),
-[decision register](../decisions.md), [roadmap](roadmap.md),
-[repository layout](../engineering/repository-layout.md),
-[version matrix](../engineering/versions.md) and [contributing](../../CONTRIBUTING.md).
+Read the [documentation index](../README.md), [M3 installation/test guide](m3-install-test.md),
+[decisions](../decisions.md), [roadmap](roadmap.md), [layout](../engineering/repository-layout.md),
+[versions](../engineering/versions.md) and [contributing](../../CONTRIBUTING.md).
 
-M0 testing was reported successful on 2026-10-06; M1 passed per the maintainer on
-2026-10-07. M2 is built for acceptance, not reported accepted. Its live hosted
-refresh grant and new in-game workflows still need the M2 exit checklist. Exact
-external versions/logs and server credentials are not present in this workspace.
+M0 passed per maintainer on 2026-10-06; M1 on 2026-10-07. M2 testing found a kick
+failure; its dedicated-reason/error-persistence fix ships in M3 rather than M2.1.
+M3 is built for live acceptance, not reported passed. Require the real plugin
+kick/access-loss/history check and owner-plus-two-members inventory/use session.
+Local verification passed 76 tests and published Linux native HTTP checks passed.
+Docker build is blocked by this environment's Microsoft CDN policy; hosted/game/
+CI/container evidence is separate.
 
-M2 implements persistent character bindings, encrypted provider refresh grants,
-rotating server sessions, groups/invitations/members/ownership, individual action
-grants, weekly policies, currency and ledger/history/recovery. Group limits are
-per verified character (3 owned / 6 active joined, owned included). Alts receive
-independent memberships and allowances. Inventory/types/categories, trading,
-events and account export/deletion remain later milestones. OpenAPI marks each
-route implemented or planned and a checker compares it with source.
+M3 implements durable character sessions, groups/member/owner/invitation lifecycle,
+individual grants, weekly policies and usage, currency/icons, catalog revisions,
+potion/letter holdings, private letter reading/editing, consume/discard/removal,
+history and retry recovery. Limits apply per verified character, including alts.
+Compact and full windows share the selected group state; refresh preserves drafts.
+Trading, event streams and account export/deletion remain M4/M5. OpenAPI status
+is checked against source routes; planned endpoints are not runtime promises.
 
-Never authorize product operations with an M1 probe token. Product auth requests
-`character refresh` and fetches a returning character by saved Lodestone ID,
-checking its ownership key. Assets reference immutable internal CharacterId.
-Names/worlds remain display/context data. No ContentId or full alt list is read.
-Test fakes are DI-only; there is no runtime bypass or fake-provider setting.
+Never authorize product operations with an M1 probe token. Product authentication
+requests `character refresh`, retrieves a returning character by saved Lodestone ID
+and checks its ownership key. Assets reference immutable internal CharacterId;
+names/worlds are display/context. Test providers are DI-only, with no release bypass.
+Honor once-per-plugin-startup chat consent; replay/recovery never triggers automatic
+chat. Paid rename/transfer tests and separate simulated-rename gates are waived.
+Tests must check meaningful accounting, authorization or recovery behavior.
 
-Honor the agreed once-per-plugin-startup chat permission, direct action grants
-instead of roles, group isolation and independently allowed alts. Paid rename/
-world-transfer tests and a separate simulated-rename gate are waived (A16).
-Only add tests that cover real accounting, authorization or recovery failures.
+Use the M3 guide for locked restore, real PostgreSQL tests, migrations/model checks,
+package validation and artifact generation. Currency media uses SkiaSharp 4.153.1
+with upstream notices, decoded static PNG/JPEG/WebP bounded to 128x128; uploads are
+authenticated and PostgreSQL-persisted. Publish server with an explicit runtime ID
+for its target (`linux-x64` for current Render), avoiding unrelated native assets.
 
-Follow the M2 guide for locked restores, PostgreSQL tests, migration/model checks,
-package validation and artifact generation. Update product rules, API schemas,
-UI behavior and acceptance documentation alongside implementation. M3 should
-reuse the transaction/idempotency/access boundaries for potion and letter creation;
-seed categories with that inventory migration. Do not implement trades prematurely.
+Preserve M2 data and vault keys. The additive PlayableInventory migration seeds old
+categories and keeps currency/identity/membership stable. Shared group DB locks
+serialize quotas, holdings, catalog and membership changes. Future types require
+explicit behavior/contracts/renderers and schema changes rather than arbitrary JSON.
 
-## Next work: M3 with carried feedback
-
-Read the [M2 feedback/M3 plan](m2-feedback-m3-plan.md) before implementing inventory.
-The maintainer reports kicking fails and feedback disappears; M2 acceptance stays
-open for that path. Source shows an empty/shared reason can cause 422, followed by
-a read refresh that overwrites the error; exact live response is not recorded.
-Fix dedicated removal validation and persistent safe diagnostics first, then prove
-plugin removal/access loss/history. No M2.1 artifact is requested.
-
-M3 also adds shared dropdown above tabs, global and 60-second visible-window read
-refresh preserving drafts, active-only default roster/owner inactive toggle,
-success-only join/create resets, and owner-uploaded static currency icons in
-PNG/JPEG/WebP up to 128x128. Icons add bounded authenticated backend media storage
-and a texture cache; they are no longer deferred beyond 1.0. Planned icon routes
-are in OpenAPI. Do not interpret this plan as implemented/accepted M3 code.
+Next: complete M3 live acceptance and fix observed defects, then build M4 trading
+using persistent reservations, reviewed offer revisions, two-party confirmation
+and existing transaction/idempotency/access boundaries. Do not declare 1.0 ready
+before M5 operations, privacy, capacity, recovery and human release checks.

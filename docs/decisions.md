@@ -66,3 +66,9 @@ are needed. Hosted renewal remains a new M2 acceptance check. Category seeding i
 in M3 alongside its first inventory migration. See the [M2 guide](delivery/m2-install-test.md).
 
 M2 feedback and exact M3 sequencing are recorded in the [feedback plan](delivery/m2-feedback-m3-plan.md). The reported removal failure remains open; source inspection identifies a required-reason/hidden-error path, not a confirmed live response.
+
+M3 implementation (2026-10-07): carried removal/UI fixes and 128x128 currency
+media shipped with inventory alpha 0.0.4.0/0.0.4. Decoder is pinned SkiaSharp
+4.153.1 (MIT with third-party notices), encoded uploads default 256 KiB and storage
+is PostgreSQL. These are implementation choices within R18–R21; live acceptance
+remains pending. See [M3 guide](delivery/m3-install-test.md).

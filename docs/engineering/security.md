@@ -141,7 +141,7 @@ be atomic; lost provider responses can require reauthentication with assets inta
 See [M2 checks](../delivery/m2-install-test.md) for the hosted renewal gate.
 
 
-## Planned M3 currency image controls
+## M3 currency image controls
 
 Currency icons are the sole custom-upload exception in 1.0. Owner changes require
 current authority, currency ETag, idempotency and an audit receipt; reads require
@@ -152,11 +152,18 @@ URLs and decoder resource excess. Normalize to PNG and strip metadata using a
 maintained decoder with reviewed licensing/deployment compatibility. Persist
 normalized bytes in group-scoped PostgreSQL assets, with no public media directory.
 Serve from the configured backend with header authentication; private caches are
-bounded and cleared on access loss/unload. Verify isolation, valid formats,
-malformed/oversize rejection, replacement, removal and restart persistence in M3.
+bounded and cleared on access loss/unload. PostgreSQL tests verify isolation, valid formats, malformed/oversize rejection,
+removal and restart persistence. Published-server HTTP checks also cover APNG and
+encoded-size rejection plus a valid multipart upload above the JSON ceiling;
+live rendering remains in the M3 checklist.
 
 M3 also separates persistent safe command-result feedback from read-refresh status.
 Expose sanitized status/code/request ID and operation key for troubleshooting;
 never display raw payloads, secrets or private content. A rejected removal produces
 no successful group-history event. Do not weaken authorization/version checks to
 make a failing interaction appear successful.
+
+Client retry handling preserves a pending mutation when a transport/gateway
+failure was followed by a rejection: that rejection cannot prove the first
+attempt had no effect. Recovery keeps the same key and never auto-posts chat.
+Safe status/code/request IDs remain available without exposing raw payloads.

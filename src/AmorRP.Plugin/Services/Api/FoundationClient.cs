@@ -12,28 +12,49 @@ using AmorRP.Contracts.Common;
 
 namespace AmorRP.Plugin.Services.Api;
 
-public sealed class FoundationApiException(HttpStatusCode status, string code, string message) : Exception(message)
+public sealed class FoundationApiException(HttpStatusCode status, string code, string message, string? requestId = null) : Exception(message)
 {
     public HttpStatusCode Status { get; } = status;
     public string Code { get; } = code;
+    public string? RequestId { get; } = requestId;
+    public bool OutcomeUncertain { get; internal set; }
 }
 public sealed class FoundationClient : IDisposable
 {
-    private readonly HttpClient http = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(25), MaxResponseContentBufferSize = 1048576 };
+    private readonly HttpClient http;
+    public FoundationClient() : this(new HttpClientHandler { AllowAutoRedirect = false }, TimeSpan.FromSeconds(25)) { }
+    internal FoundationClient(HttpMessageHandler handler, TimeSpan timeout)
+        => http = new(handler) { Timeout = timeout, MaxResponseContentBufferSize = 1048576 };
     public static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
     public async Task<T> GetAsync<T>(Uri origin, string path, string token, CancellationToken ct)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(origin, path));
         request.Headers.Authorization = new("Bearer", token); return await SendAsync<T>(request, ct);
     }
+    public async Task<byte[]> GetIconAsync(Uri origin, string path, string token, CancellationToken ct)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(origin, path)); request.Headers.Authorization = new("Bearer", token);
+        using var response = await http.SendAsync(request, ct); await CheckAsync(response, ct);
+        if (response.Content.Headers.ContentType?.MediaType != "image/png") throw new InvalidOperationException("Invalid currency image response.");
+        var bytes = await response.Content.ReadAsByteArrayAsync(ct);
+        if (bytes.Length > 131072) throw new InvalidOperationException("Currency image exceeds its storage limit.");
+        return bytes;
+    }
     public async Task<string> CommandAsync(Uri origin, CommandRequest command, Guid key, string token, CancellationToken ct)
+        => (await CommandWithMetadataAsync(origin, command, key, token, ct)).Json;
+    public async Task<CommandResponse> CommandWithMetadataAsync(Uri origin, CommandRequest command, Guid key, string token, CancellationToken ct)
     {
         return await RetryAsync(async () => {
             using var request = new HttpRequestMessage(new HttpMethod(command.Method), new Uri(origin, command.Path));
             request.Headers.Authorization = new("Bearer", token); request.Headers.Add("Idempotency-Key", key.ToString());
             if (command.ETag != null) request.Headers.Add("If-Match", command.ETag);
-            if (command.Json != null) request.Content = new StringContent(command.Json, System.Text.Encoding.UTF8, "application/json");
-            using var response = await http.SendAsync(request, ct); await CheckAsync(response, ct); return await response.Content.ReadAsStringAsync(ct);
+            if (command.UploadBase64 != null)
+            {
+                var multipart = new MultipartFormDataContent(); var file = new ByteArrayContent(Convert.FromBase64String(command.UploadBase64));
+                file.Headers.ContentType = new("application/octet-stream"); multipart.Add(file, "file", "currency-icon"); request.Content = multipart;
+            }
+            else if (command.Json != null) request.Content = new StringContent(command.Json, System.Text.Encoding.UTF8, "application/json");
+            using var response = await http.SendAsync(request, ct); await CheckAsync(response, ct); return new CommandResponse(await response.Content.ReadAsStringAsync(ct), response.Headers.TryGetValues("Idempotency-Replayed", out var replay) && replay.Contains("true"));
         }, ct);
     }
     public async Task<LoginAttemptCreated> StartAsync(Uri origin, LoginStart selected, CancellationToken ct)
@@ -80,13 +101,14 @@ public sealed class FoundationClient : IDisposable
     private static async Task CheckAsync(HttpResponseMessage response, CancellationToken ct)
     {
         if (response.IsSuccessStatusCode) return;
-        var code = "request_failed"; var title = "Request failed. Refresh and try again.";
+        string? requestId = null; var code = "request_failed"; var title = "Request failed. Refresh and try again.";
         try {
             using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+            if (json.RootElement.TryGetProperty("requestId", out var id)) requestId = id.GetString();
             if (json.RootElement.TryGetProperty("code", out var c)) code = c.GetString() ?? code;
             if (json.RootElement.TryGetProperty("title", out var t)) title = t.GetString() ?? title;
         } catch (JsonException) { }
-        throw new FoundationApiException(response.StatusCode, code, title.Length <= 300 ? title : "Request failed.");
+        throw new FoundationApiException(response.StatusCode, code, title.Length <= 300 ? title : "Request failed.", requestId);
     }
     private static async Task<T> RetryAsync<T>(Func<Task<T>> operation, CancellationToken ct)
     {
@@ -96,7 +118,15 @@ public sealed class FoundationClient : IDisposable
             catch (Exception ex) when (attempt < 2 && !ct.IsCancellationRequested &&
                 (ex is HttpRequestException or TaskCanceledException || ex is FoundationApiException { Status: HttpStatusCode.ServiceUnavailable or HttpStatusCode.BadGateway or HttpStatusCode.GatewayTimeout }))
             { await Task.Delay(TimeSpan.FromSeconds(attempt + 1), ct); }
+            catch (FoundationApiException failure) when (attempt > 0)
+            {
+                // A lost response or gateway failure may have followed a commit.
+                // A later rejection cannot prove that the original attempt had no effect.
+                failure.OutcomeUncertain = true; throw;
+            }
         }
     }
     public void Dispose() => http.Dispose();
 }
+
+public sealed record CommandResponse(string Json, bool Replayed);

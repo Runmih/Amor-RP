@@ -2,8 +2,8 @@ openapi: 3.0.3
 info:
   title: Amor RP proposed 1.0 API
   version: 1.0.0-draft
-  description: Proposed 1.0 contract. M0 implements liveness, readiness and capabilities;
-    M1 adds temporary identity feasibility probes. Durable authentication and product routes are planned. Defaults are provisional; decision register and API guide define rules.
+  description: 1.0 contract with per-operation implementation status. M3 implements durable
+    authentication, groups/currency/icons, categories, potion definitions, letter/potion inventory and quotas. Trading, events and data lifecycle remain planned. Effective limits are discovered from capabilities.
 servers:
 - url: https://api.example.invalid
   description: Placeholder; configure real trusted backend URL.
@@ -1600,7 +1600,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner or inventory.remove; dormant summaries owner only
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2278,7 +2278,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       x-delivery-milestone: M3
       parameters:
       - &currencyIcon001
@@ -2341,7 +2341,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       x-delivery-milestone: M3
       parameters:
       - *currencyIcon001
@@ -2423,7 +2423,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       x-delivery-milestone: M3
       parameters:
       - *currencyIcon001
@@ -2596,7 +2596,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2659,7 +2659,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2723,7 +2723,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2776,7 +2776,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2849,7 +2849,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2912,7 +2912,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2975,7 +2975,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3039,7 +3039,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3099,7 +3099,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3172,7 +3172,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3240,7 +3240,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3286,7 +3286,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3375,7 +3375,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Current holder; active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3429,7 +3429,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner or items.potion.create
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3492,7 +3492,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3556,7 +3556,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Current holder; active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3609,7 +3609,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Author and current holder
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3682,7 +3682,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Current holder; active member; potion type
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3749,7 +3749,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Current holder; active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -3816,7 +3816,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner or inventory.remove; target active
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -5211,6 +5211,26 @@ components:
         ownershipProposalHours:
           type: integer
           minimum: 1
+        maxCurrencyIconBytes:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 262144
+        maxCurrencyIconDimension:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 128
+        maxCategoriesPerGroup:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 100
+        maxDefinitionsPerGroup:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 1000
       required:
       - ownedGroups
       - joinedGroups
@@ -5414,7 +5434,7 @@ components:
           type: string
           format: uuid
           nullable: true
-          description: Planned M3 group-scoped asset reference; omitted by M2, null when no custom icon.
+          description: M3 group-scoped asset reference; omitted by M2, null when no custom icon.
         version: *id005
       required:
       - id

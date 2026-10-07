@@ -7,8 +7,8 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <Deterministic>true</Deterministic>
-    <Version>0.0.3</Version>
-    <Milestone>M2</Milestone>
+    <Version>0.0.4</Version>
+    <Milestone>M3</Milestone>
     <Authors>Amor RP contributors</Authors>
     <RepositoryUrl>https://github.com/Runmih/Amor-RP</RepositoryUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>

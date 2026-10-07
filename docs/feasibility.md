@@ -1,9 +1,9 @@
 # Sanity check and implementation readiness
 
-Review date: 2026-10-07. **A clean 1.0 remains feasible. M2 is implemented for
+Review date: 2026-10-07. **A clean 1.0 remains feasible. M3 is implemented for
 acceptance; the complete 1.0 product is still in development.** The remaining
 largest engineering risk is atomic trading and recovery, followed by inventory
-quota/revision behavior and release operations.
+live inventory/chat behavior and release operations.
 
 ## Existing code assessment
 
@@ -11,8 +11,9 @@ Four application projects build against .NET 10 and Dalamud API 15. M0 and M1
 passed per maintainer reports; exact hosted/game logs and credentials are not in
 this workspace. M2 adds durable IDs/sessions, group/owner/member management,
 individual grants, weekly policy scheduling, currency ledger/history/recovery and
-plugin screens. Inventory/quota spending, categories, trades and lifecycle/event
-features remain later milestones. See [M2 setup and evidence](delivery/m2-install-test.md).
+plugin screens. M3 implements categories, immutable potion revisions, independent
+usage snapshots, letters, inventory and bounded currency media. Trades and
+lifecycle/event features remain later milestones. See [M3 setup](delivery/m3-install-test.md).
 
 Real PostgreSQL tests cover caps, invite use, authority revocation, isolation,
 balance concurrency and retry behavior. No paid rename/transfer or separate
@@ -78,18 +79,13 @@ no XIVAuth application was registered.
 
 ## Readiness conclusion
 
-Documentation verification passed: valid OpenAPI with 76 operations (three M0
-GETs implemented; 73 planned) and
-120 schemas, resolved local links, endpoint catalog
-parity, explicit operation authorization/idempotency metadata, and acceptance
-coverage for all 16 feature IDs. The reproducible checker is
-[scripts/check-docs.py](../scripts/check-docs.py). M0 build/test evidence is separate
-from those documentation checks. No live login/game interaction, hosted deployment
-or asset/trade transaction test has been performed.
+Documentation validation covers 85 API operations and 124 schemas, resolved local
+links, endpoint catalog/source parity and all 16 feature IDs. M3 implements 73
+operations; 12 remain planned. The [checker](../scripts/check-docs.py) verifies
+contract/document consistency, not game behavior. Local verification passed 76 tests,
+including PostgreSQL quota/revision/isolation/privacy/media and upgrade scenarios.
 
-Complete M2 acceptance, then start M3 inventory. Keep CI/container evidence separate. Authentication
-and game integration resolve the largest external
-unknowns before investing in full interface polish. Database integration tests
-must resolve accounting/trade integrity. Finish the full feature loop with a small
-real group before expansion. The clean foundation exists; its human-navigation
-check and later feature implementation remain milestone work.
+Complete M3 live acceptance, including the carried kick and inventory/chat loop,
+then start M4 trading. Keep CI/container evidence separate. Finish the full loop
+with a small real group before expansion; M5 operational, privacy, measured capacity
+and human release checks still block public 1.0.

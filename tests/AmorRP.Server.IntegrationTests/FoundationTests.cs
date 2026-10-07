@@ -19,7 +19,7 @@ using Xunit;
 
 namespace AmorRP.Server.IntegrationTests;
 
-public sealed class FoundationTests : PostgresTestDatabase
+public sealed partial class FoundationTests : PostgresTestDatabase
 {
     private readonly FakeDurableProvider provider = new();
     private readonly TestClock clock = new();

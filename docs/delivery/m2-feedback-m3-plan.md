@@ -3,7 +3,11 @@
 Recorded 2026-10-07 from the maintainer's in-game feedback. M2 has a reported
 member-removal defect; do not label it fully accepted. Most tested flows were
 reported usable. No M2.1 artifact is scheduled: carry the fixes into one M3 build,
-with removal verified before M3 acceptance. This is a plan, not an implemented fix.
+with removal verified before M3 acceptance.
+
+Implementation update: M3 code now includes these changes; see the
+[M3 guide](m3-install-test.md). The original investigation/ordering below records
+the reasoning; live acceptance is still pending.
 
 ## Feedback disposition
 
@@ -74,7 +78,7 @@ it is not just a different text widget. Keep the implementation narrowly scoped.
 - Read requires current active group membership; upload/removal requires current
   ownership, version precondition, idempotency and an audit receipt. Deliver only
   from the configured backend; never put bearer credentials in image URLs.
-- Proposed routes in OpenAPI: GET/PUT/DELETE
+- Implemented routes in OpenAPI: GET/PUT/DELETE
   `/api/v1/groups/{groupId}/currency/icon`. GET returns normalized `image/png`;
   mutations return the updated currency and operation receipt. No general image
   hosting, item images, letter attachments or public media directory is included.

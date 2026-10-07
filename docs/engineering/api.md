@@ -1,12 +1,12 @@
 # API contract and endpoint catalog
 
-**Status:** M2 implements durable authentication, character sessions, groups,
-members/invitations/ownership, weekly policies, currency, history and operation
-recovery, alongside M0/M1 endpoints. Inventory, categories, trading, data lifecycle,
-currency icon upload and events remain planned. `x-implementation-status` in [OpenAPI](openapi.yaml)
+**Status:** M3 implements durable authentication, groups/member lifecycle, weekly
+policies and usage, currency/icons, categories, immutable potion definitions,
+potion/letter inventory and operation recovery, alongside M0/M1 endpoints. Trading,
+data lifecycle and events remain planned. `x-implementation-status` in [OpenAPI](openapi.yaml)
 is the authoritative per-operation status and is checked against source routes.
-Capabilities advertises the three individual grants; item/chat types stay empty
-until the product inventory path exists. Every operation carries explicit
+Capabilities advertises the three individual grants, potion/letter types, supported
+chat destination kinds and effective image/catalog limits. Every operation carries explicit
 authorization metadata; authentication alone never grants group access.
 Paths below are on the configured backend authority. No provider URLs are invented.
 
@@ -68,7 +68,7 @@ not every endpoint will emit every listed error.
 | 409 | `quota_exhausted`, `insufficient_available_quantity`, `group_limit_reached`, `definition_changed`, `trade_revision_changed`, `trade_expired`, `idempotency_mismatch`, `operation_replay_expired`, `inventory_full` |
 | 412 / 428 | `version_mismatch` / `precondition_required` |
 | 413 / 422 | Body too large / semantically invalid fields, `invalid_quantity`, `invalid_message` |
-| 415 | Unsupported image format, `unsupported_media_type` (planned icon upload) |
+| 415 | Unsupported image format, `unsupported_media_type` (icon upload) |
 | 429 | `rate_limited`; include Retry-After |
 | 500 | `internal_error`; safe request ID, recover operation outcome before retry |
 | 503 | `maintenance`, `identity_provider_unavailable`, `temporarily_unavailable` |
@@ -162,9 +162,9 @@ Mutations are marked with an asterisk and require an idempotency key.
 | --- | --- | --- | --- |
 | GET | `/api/v1/groups/{groupId}/currency` | Group currency definition | Active member |
 | PATCH * | `/api/v1/groups/{groupId}/currency` | Rename currency without replacing identity | Owner |
-| GET | `/api/v1/groups/{groupId}/currency/icon` | Planned M3: normalized PNG; default icon when absent | Active member |
-| PUT * | `/api/v1/groups/{groupId}/currency/icon` | Planned M3: bounded static image upload/replace; preserve currency identity | Owner |
-| DELETE * | `/api/v1/groups/{groupId}/currency/icon` | Planned M3: remove custom image; use bundled default | Owner |
+| GET | `/api/v1/groups/{groupId}/currency/icon` | normalized PNG; default icon when absent | Active member |
+| PUT * | `/api/v1/groups/{groupId}/currency/icon` | bounded static image upload/replace; preserve currency identity | Owner |
+| DELETE * | `/api/v1/groups/{groupId}/currency/icon` | remove custom image; use bundled default | Owner |
 | GET | `/api/v1/groups/{groupId}/balances` | Own available/reserved currency | Active member |
 | POST * | `/api/v1/groups/{groupId}/currency/adjustments` | Issue/remove whole-unit currency with reason | Owner or currency.manage; target active |
 
@@ -346,15 +346,15 @@ Operation responses are encrypted; a UUID key alone cannot retrieve login secret
 After leave/deletion, recover the actor's receipt via operations/key lookup; a
 resource replay still requires current access. List cursors are encrypted and
 bound to actor, group and list filters. History pages show newest entries first.
-M2 has manual refresh and no event stream; eventCursor is null.
+M3 has manual/60-second visible-window refresh and no event stream; eventCursor is null.
 
 An older same-key refresh replay is rejected with `refresh_superseded` after a
 later renewal; it cannot supply obsolete credentials. A different-key reuse of
 an unexpired consumed refresh credential revokes the session family.
 
-## Planned M3 currency icon boundary
+## M3 currency icon boundary
 
-The three currency icon routes are planned, not available in M2. Upload a single
+The three currency icon routes are implemented in M3 and unavailable in M2. Upload a single
 local static PNG, JPEG/JPG or WebP with `multipart/form-data`; no external image URL.
 Both dimensions must be at most 128 pixels. A recommended configurable 256 KiB
 encoded-file limit is advertised to clients; the route has its own bounded body
@@ -366,7 +366,7 @@ PUT/DELETE require the currency's current `If-Match` and the same logical mutati
 idempotency key. Fingerprints include the upload content hash and ETag, not unstable
 multipart boundaries. Mutations return updated currency plus operation receipt;
 update version/reference/audit atomically without replacing currency identity or
-changing balances. The optional `iconAssetId` response field is planned for M3.
+changing balances. The optional `iconAssetId` response field is returned by M3.
 M2 text symbol fields remain compatible legacy data during migration; release UI
 uses custom or bundled icons. Reads require current active membership and use
 Authorization headers on the configured backend, with no public media directory.

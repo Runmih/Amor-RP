@@ -41,7 +41,7 @@ public sealed class CommandStore(AmorDbContext db, SecretVault vault, TimeProvid
     };
     public async Task<IResult> SaveAsync(HttpContext context, OperationRow operation, object response, CancellationToken ct)
     {
-        if (operation.Kind is "group.create" or "invitation.create" or "ownership.propose" or "login.start") operation.ResponseStatus = 201;
+        if (operation.Kind is "group.create" or "invitation.create" or "ownership.propose" or "login.start" or "category.create" or "definition.create" or "potion.create" or "letter.create") operation.ResponseStatus = 201;
         var json = JsonSerializer.Serialize(response, Json);
         operation.ProtectedResponse = vault.Protect(json, "operation:" + operation.Id);
         operation.ETag = context.Response.Headers.ETag;

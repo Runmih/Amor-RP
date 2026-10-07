@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AmorRP.Server.Infrastructure.Persistence;
 
-public sealed class AmorDbContext(DbContextOptions<AmorDbContext> options) : DbContext(options)
+public sealed partial class AmorDbContext(DbContextOptions<AmorDbContext> options) : DbContext(options)
 {
     public DbSet<InfrastructureState> InfrastructureStates => Set<InfrastructureState>();
 
@@ -18,6 +18,7 @@ public sealed class AmorDbContext(DbContextOptions<AmorDbContext> options) : DbC
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        ConfigureInventory(modelBuilder);
         modelBuilder.Entity<CharacterRow>(e => {
             e.ToTable("characters"); e.HasKey(x => x.Id);
             e.HasIndex(x => x.LodestoneId).IsUnique(); e.Property(x => x.LodestoneId).HasMaxLength(20);

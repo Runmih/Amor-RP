@@ -20,23 +20,27 @@ public sealed class MainWindow : Window, IDisposable
     private string backendUrl;
     private string status = "Use Check connection after starting the local server.";
 
-    public MainWindow(IPlayerState playerState, IPartyList party, ChatConsentWindow chatConsent, Configuration configuration, Action save)
+    public MainWindow(IPlayerState playerState, IPartyList party, ChatConsentWindow chatConsent, Configuration configuration, Action save, ITextureProvider textures)
         : base("Amor RP###AmorRPMain")
     {
         this.playerState = playerState;
         this.configuration = configuration;
         this.save = save;
         feasibility = new(playerState, party, chatConsent);
-        groups = new(playerState, configuration, save);
+        groups = new(playerState, configuration, save, party, chatConsent, textures);
         backendUrl = configuration.BackendUrl;
         Size = new Vector2(650, 720);
         SizeCondition = ImGuiCond.FirstUseEver;
     }
 
+    public Action? OpenCompact { get; set; }
+    public void DrawCompact() => groups.Draw(backendUrl, compactMode: true);
+
     public override void Draw()
     {
         // All game reads happen here, on Dalamud's draw/framework thread.
-        ImGui.TextUnformatted("Amor RP — M2 groups and currency");
+        ImGui.TextUnformatted("Amor RP — M3 inventory alpha");
+        if (ImGui.Button("Open compact consumables")) OpenCompact?.Invoke();
         ImGui.Separator();
         if (playerState.IsLoaded)
         {

@@ -6,12 +6,14 @@ public sealed class GroupRow
     public string Name { get; set; } = "";
     public string Description { get; set; } = "";
     public Guid OwnerCharacterId { get; set; }
+    public int InventoryVersion { get; set; } = 1;
     public int Version { get; set; } = 1;
     public bool Deleted { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid CurrencyId { get; set; } = Guid.CreateVersion7();
     public string CurrencyName { get; set; } = "";
     public string CurrencySymbol { get; set; } = "";
+    public Guid? CurrencyIconAssetId { get; set; }
     public int CurrencyVersion { get; set; } = 1;
     public int PolicyVersion { get; set; } = 1;
     public int CurrentPotionPoints { get; set; }
