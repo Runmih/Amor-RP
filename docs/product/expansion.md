@@ -16,7 +16,7 @@ ownership, trade behavior, read/use behavior, migration and interface decisions.
 | Multiple currencies | Existing currency IDs and ledger | Remove one/group constraint, UI selection, decimal-unit policy |
 | Shops/markets | Trades/ledger/domain accounting | Listings, escrow, seller permissions, expiry, abuse handling |
 | Public directory | Explicit consent boundary | Discovery design and platform review; never expose private membership |
-| Images/attachments | Separate asset-service boundary | Object storage, size/content restrictions, privacy/cost policy |
+| Item images/attachments | Group-scoped asset boundary introduced for 1.0 currency icons | Separate owner/content permissions, storage quotas and privacy/cost policy; currency icons alone do not authorize attachments |
 | Web/mobile UI | Versioned API/contracts | Separate OAuth clients, browser CSRF/CORS, broader session UX |
 | Localization | Centralized label catalog | Translation assets, text measurement, locale testing |
 | Horizontal scaling | Persistent sessions/trades/event rows | Shared event fan-out/locks/rate limits; capacity and failure tests |

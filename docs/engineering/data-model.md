@@ -25,7 +25,8 @@ options, with plain-text storage.
 | ItemDefinitionRevision | Group/definition/revision, category ID, name, description, typeDataVersion and typed potion payload |
 | Holding | Group/character/ID, type ID, definition revision or instance ID, owned quantity, reserved quantity, version |
 | LetterInstance | Group/ID, author ID, title/body, category ID, content version, first-traded timestamp |
-| Currency | Group/ID, name, symbol, version; one/group uniqueness in 1.0 |
+| Currency | Group/ID, name, legacy symbol, nullable icon asset ID, version; one/group uniqueness in 1.0 |
+| MediaAsset (planned M3) | Opaque ID, group ID, normalized static PNG bytes, content hash, validated dimensions/length, creator/time; initially currency icons only |
 | CurrencyBalance | Group/character/currency unique tuple, owned amount, reserved amount, version |
 | CurrencyLedger | Operation/group/currency, affected character, signed delta, reason/transfer counterpart, before/after, actor |
 | QuotaUsage | Group/character/kind/period unique tuple, limit snapshot, used, policy revision |
@@ -81,6 +82,7 @@ and short-lived auth cleanup, never the personal financial history.
 | Potion production | Definition/current policy lock, quota debit, holding credit, operation/audit/idempotency/event |
 | Letter creation | Quota debit, instance + holding, operation/audit/idempotency/event |
 | Consumption/discard/removal | Available quantity decrement, operation/audit/idempotency/event |
+| Currency icon replacement/removal (planned M3) | Same-group media asset/reference, currency version, operation/audit/idempotency; preserve balances |
 | Currency adjustment | Available balance, supply ledger, operation/audit/idempotency/event |
 | Offer edit | Trade revision, own lines, old/new reservations, confirmations cleared, event |
 | Second confirmation | Both inventories/balances, balanced trade ledger, letter locks, release reservations, terminal trade, history |
@@ -144,3 +146,15 @@ already. M3 materializes immutable per-period quota snapshots when spending star
 A future multiple-currency migration extracts balances keyed by stable CurrencyId;
 public IDs, actor ownership and integer-string amounts need no replacement.
 Operator retention/purge is an M5 release gate; never reset usage on rejoin.
+
+## Planned M3 currency media mapping
+
+Add a group-scoped asset table for small normalized currency images and a nullable
+asset reference beside the existing stable currency fields. Enforce same-group
+foreign keys and validated dimensions/size; use PostgreSQL bytes rather than
+Render's ephemeral filesystem. Migrate existing M2 currencies without changing IDs
+or balances; retain textual symbol fields as legacy compatibility data. Replacing
+an icon commits bytes/reference/version and the audited replay receipt atomically.
+Retire superseded bytes once no current reference or documented replay/retention
+requirement needs them; bound storage and include media in backup/restore checks.
+This is a reusable asset boundary, not a general attachment feature in 1.0.

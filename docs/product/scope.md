@@ -17,9 +17,9 @@ RP value is fictional; 1.0 has no real-money exchange or gambling functionality.
 | --- | --- | --- |
 | F01 | Login | XIVAuth verifies selected character; server issues revocable character-bound session. |
 | F02 | Groups | Create, invite, join, leave, remove/restore member, transfer ownership, delete group; enforce limits. |
-| F03 | Switching | Persistent active-group selector; every screen shows group and character. |
+| F03 | Switching | Persistent group dropdown above tabs, shared refresh/status; every screen shows group and character. |
 | F04 | Permissions | Owner grants/revokes individual actions and toggles member trading restriction. |
-| F05 | Currency | Display balance; authorized issue/remove; trade currency; inspect relevant history. |
+| F05 | Currency | Named currency with owner-uploaded PNG/JPEG/WebP icon up to 128x128; display balance; authorized issue/remove; trade currency; inspect relevant history. |
 | F06 | Categories | Seed Consumables and Correspondence; owner can add, rename, or retire categories. |
 | F07 | Potion definitions | Owner sets name, category, description, message, creation cost, availability. |
 | F08 | Potion production | Authorized character spends its own weekly points to create quantities. |
@@ -41,7 +41,7 @@ not required. Browser interaction is limited to authentication and documentation
 Additional types (weapons, equipment, books, containers), crafting ingredients,
 recipes with prerequisites, shops/markets, auctions, group banks, multiple
 currencies, currency exchange, character stats, combat automation, shared account
-allowances, named roles/presets, public directories, uploaded images, attachments,
+allowances, named roles/presets, public directories, general image uploads and attachments (currency icons are the 1.0 exception),
 full localization, mobile/web inventory editing, multiple server instances, and
 offline writes. See [expansion](expansion.md).
 

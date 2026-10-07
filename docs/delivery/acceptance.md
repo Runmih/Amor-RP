@@ -10,9 +10,9 @@ tests. In-game behavior requires human tests in FFXIV.
 | --- | --- |
 | F01 login | Verified ID/key resolves the existing character; wrong ownership, callback replay, expiry, refresh/logout; paid rename/transfer checks waived and no separate simulated-rename gate (A16) |
 | F02 groups | 3/6 caps under concurrency; invites expire/revoke; leave/remove/restore; accepted transfer; deletion |
-| F03 switching | Correct group/character always shown; pending trade reconciled before switching |
+| F03 switching | Correct group/character always shown; dropdown outside tabs; pending trade reconciled before switching; refresh preserves drafts and displays stale/error state |
 | F04 permissions | Each grant controls only its action; revoke in open dialog; owner transfer updates authority |
-| F05 currency | Issue/remove history; insufficient/reserved/overflow denied; exchanges conserve supply |
+| F05 currency | Issue/remove history; insufficient/reserved/overflow denied; exchanges conserve supply; authorized PNG/JPEG/WebP icon upload <=128x128, isolation/replace/remove/restart |
 | F06 categories | Seed/add/rename/retire; old item remains readable; category never grants creation privilege |
 | F07 definitions | Owner-only revisions; cost changes invalidate old preview; retirement preserves copies |
 | F08 production | Correct quantity*cost; independent alt quotas; grant/rejoin does not refill; no concurrent overspend |
@@ -112,3 +112,15 @@ M0: testing reported successful 2026-10-06. M1: passed per maintainer report
 checklist are documented in the [M2 guide](m2-install-test.md). Earlier acceptance
 does not claim a new refresh scope was demonstrated. Existing 1.0 feature rows
 remain release criteria, not all completed features.
+
+## M2 feedback carried forward
+
+M2's reported in-game removal failure is open, not accepted. Deliver its fix in
+M3 before completing inventory acceptance; no M2.1 build is planned. Require a
+real plugin reasoned kick, target access loss and one committed history event.
+Verify blank-reason validation and persistent rejection details across refresh,
+active-only default roster with owner inactive recovery, shared dropdown, global
+and 60-second read refresh preserving drafts, and success-only join/create resets.
+Currency icons are an explicit 1.0 requirement, including valid format/dimension
+and malformed/animated/oversize rejection, authorization, persistence and texture
+lifecycle. See the [implementation plan](m2-feedback-m3-plan.md).

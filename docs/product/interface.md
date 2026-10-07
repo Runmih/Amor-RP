@@ -3,7 +3,8 @@
 ## Shared display
 
 Every window shows active **group name** and **character name @ home world**.
-Top bar: group selector, currency balance, connection state, and settings. Use
+Top bar above all feature tabs: persistent group dropdown, currency icon/balance,
+Refresh data button, last successful update, connection state, and settings. Use
 labels as well as color for errors, restrictions, and offline state. No network
 or database work runs synchronously in the ImGui drawing callback.
 
@@ -37,15 +38,21 @@ never display the former character's private letter contents under the new ident
 
 ## Groups
 
+The dropdown stays outside the tab contents and is available from every tab.
 Selector lists only current character's active memberships and highlights owner
 status. Display pending trade before switching; reconcile cancellation first.
 On group removal or deletion show an explanation, clear sensitive caches and
 select another available group. Empty membership list has actionable Create/Join.
 
-Create: group name, description, currency name/symbol, weekly potion points, weekly
-letter count. Default points zero is explained: "Set an allowance before creating
+Create: group name, description, currency name, default coin icon, weekly potion
+points and weekly letter count. Default points zero is explained: "Set an allowance before creating
 potions." Join: invitation code, group summary, membership disclosure, confirmation.
-Invitation codes are copyable only when created, not shown in logs.
+Invitation codes are copyable only when created, not shown in logs. After a
+confirmed join, clear the entered code and reset visibility acceptance. After
+confirmed creation, reset its draft to server defaults and select the new group;
+keep creation and owner-edit drafts separate. Retain inputs on failed/unknown outcomes.
+Owner currency settings upload/preview PNG, JPEG/JPG or static WebP up to 128x128,
+with a bundled fallback icon and a clear oversize/invalid-file message.
 
 ## Compact consumables
 
@@ -66,9 +73,10 @@ chat channel. Show explicit failed/unknown outcome rather than optimistic deplet
 Search, category and type filters, stable sorting, pagination, and selected details
 pane. Columns: item name, type/category, available quantity, reserved quantity.
 Details: description, revision, author for letters, potion use message, applicable
-actions. Display letter body only after authorized detail request. Default icon set
-is bundled; no remote images or downloads. Actions include pin/unpin, read, use,
-discard, eligible edit, and trade. Discard confirms quantity and irreversibility.
+actions. Display letter body only after authorized detail request. Default item
+icons are bundled. Custom currency icons load only from the configured backend
+under current group authorization; no user-supplied remote URLs. Actions include
+pin/unpin, read, use, discard, eligible edit, and trade. Discard confirms quantity and irreversibility.
 
 ## Creation
 
@@ -101,7 +109,11 @@ completion shows "Checking trade result" until authoritative reconciliation.
 ## Owner and delegated tools
 
 - Members: character/home world, individual action checkboxes, trading restriction,
-  remove/restore, invite. Do not show online/offline plugin usage.
+  remove/restore, invite. Default to active members, including for owners.
+  Owner-only Show inactive members exposes dormant/blocked recovery rows.
+  Member removal has its own mandatory reason and confirmation, with rejection
+  visible until acknowledged or superseded by another action. Do not show
+  online/offline plugin usage.
 - Potions: definition list, revision editor, enable/retire, current creation cost,
   warning that edits affect new copies. Group owner alone defines recipes.
 - Policies: current weekly limits and next-week scheduled values with effective date.
@@ -152,3 +164,20 @@ require retry/receipt reconciliation before another mutation.
 The selected group is saved per backend/verified character. Inventory, compact
 consumables and trading tabs arrive at their milestones. Diagnostics stays under
 an explicit M1 section; its chat test is not a currency/item use action.
+
+## Refresh and action feedback (M3)
+
+Keep Refresh data beside the group dropdown above the tabs. Display the last
+successful update and an explicit stale/offline state. Refresh after committed
+mutations and every 60 seconds while an authenticated product window is visible;
+skip overlapping/in-flight actions and back off on connection failures.
+Refresh read models without replacing local drafts, clearing selection unnecessarily
+or resetting startup chat consent. Group/character switching clears private views
+and cannot redirect a pending command into the newly selected context.
+
+Separate synchronization status from action results. Loading/refreshed messages
+must never overwrite a removal or other command error. Explain required reasons,
+authority denials and stale versions; expandable troubleshooting shows sanitized
+HTTP status, error code, request ID and operation key without credentials/content.
+Only a committed removal appears as a successful history event.
+See the [M2 feedback plan](../delivery/m2-feedback-m3-plan.md) for implementation order.

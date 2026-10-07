@@ -208,3 +208,11 @@ name, coin name or new item type is used as a permission decision.
 
 Operator cleanup, retention/purge/export, event streams, complete load/restore
 checks and distribution polish remain M5 gates. Do not call this a production 1.0.
+
+## Feedback update, 2026-10-07
+
+The maintainer reports one functional issue: plugin removal fails without visible
+history/error. M2 acceptance remains open for that path. Carry its fix and the
+requested navigation/refresh/roster/form/image changes into M3, starting with
+removal and diagnostics; no M2.1 artifact is planned. See the [feedback plan](m2-feedback-m3-plan.md).
+The build/evidence above describes M2 and is not a claim that these fixes shipped.

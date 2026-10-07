@@ -22,6 +22,9 @@ concrete baseline for implementation planning, subject to product review.
 | A14 | Agreed | Existing project files may be completely replaced. The new product does not need to preserve the SDK 11 scaffold or its sample profile behavior. |
 | A15 | Agreed | Character rename or home-world transfer must preserve inventory, currency, group memberships, permissions and quota usage. Ownership uses an internal character ID linked to provider-verified identifiers; names/worlds are mutable display/context fields. |
 | A16 | Agreed | Skip live paid character rename/home-world-transfer tests because they require real-money services. No separate simulated-rename/transfer test gate is required. Verified ID/key mapping and authorization are covered by normal authentication tests; provider identifier derivation is documented. Tests must check meaningful behavior/security boundaries rather than hypothetical alternate implementations. |
+| A17 | Agreed | The active-group selector is a dropdown outside/above the feature tabs, available from every tab. |
+| A18 | Agreed | Currency symbols are owner-provided PNG, JPEG/JPG or WebP images, maximum 128x128 pixels, in the 1.0 scope. Text symbols in M2 are legacy compatibility data; general attachments remain deferred. |
+| A19 | Agreed | Clear the join invitation code after confirmed join success; reset the group-creation form to defaults after confirmed creation. Keep drafts on failures or unresolved outcomes. |
 | R01 | Recommended | One repo; C# server, PostgreSQL, Render hosting. Plugin remains a separate deployment artifact. |
 | R02 | Recommended | Apply three-owned/six-joined limits per verified character. The user's original wording did not settle account versus character for group caps. Confirm before finalizing group admission. |
 | R03 | Recommended | Monday 00:00 UTC weekly boundary; no rollover; changes to weekly limits start next period. Potion allowance initially zero until owner configures it. |
@@ -39,6 +42,10 @@ concrete baseline for implementation planning, subject to product review.
 | R15 | Recommended | Initial cleanup policy: login attempts 10 minutes, replayable events 24 hours, idempotent response replay 7 days, financial audit 365 days, deleted-group purge after 30 days. Confirm privacy notice and operator workflow before inviting testers. |
 | R16 | Recommended / M0 build verified | Plugin baseline: stable Dalamud API 15, Dalamud.NET.Sdk 15.0.0, .NET 10. M0 compiles against checksum-pinned Dalamud 15.0.3.6 references; live game loading is pending. Recheck stable support at each release; API 16 is currently a development preview. |
 | R17 | Recommended | Use the dated engineering version matrix: .NET 10 LTS, PostgreSQL 18 on Render, EF Core/Npgsql 10, SDK-provided game/UI assemblies; prove and pin exact dependencies at M0/M1. Initial live support is Windows x64 on the stable global-client Dalamud track. |
+| R18 | Recommended | Global Refresh data button, last-update/stale indicator and 60-second read refresh while an authenticated product window is visible, preserving local drafts and pending action context. Include the baseline in M3 and verify load behavior before 1.0. |
+| R19 | Recommended | Retain dormant/blocked memberships and assets internally; default to active-only roster for everyone, with owner-only Show inactive members for recovery. |
+| R20 | Recommended | Deliver the reported M2 removal fix and persistent error diagnostics first within M3, without an M2.1 artifact; require a live plugin removal/access-loss/history check before M3 acceptance. Reconsider a patch only if data integrity or unauthorized access is found. |
+| R21 | Recommended | Currency icons are static, decoded/validated and normalized to metadata-free PNG; recommended encoded upload ceiling 256 KiB, durable group-scoped DB storage and owner-only versioned/idempotent changes. No external image URLs or general attachment hosting. |
 | U01 | Unverified | Register XIVAuth application; verify actual scopes/endpoints, character identifiers, provider renewal/revocation, and deployment callback. |
 | U02 | Partially verified | Replacement scaffold builds and local M0 tests pass on R16/R17 baselines. Live plugin loading, hosted Windows CI, complete Docker build, context menu and chat sending remain gates. |
 | U03 | Unverified | Render account, billing, region, domain, credentials, database restore, and measured capacity. No resources provisioned. |
@@ -57,3 +64,5 @@ before product APIs: the temporary M1 probes cannot authorize groups. Scope expa
 only to `character refresh`; a new exact callback and deployment encryption key
 are needed. Hosted renewal remains a new M2 acceptance check. Category seeding is
 in M3 alongside its first inventory migration. See the [M2 guide](delivery/m2-install-test.md).
+
+M2 feedback and exact M3 sequencing are recorded in the [feedback plan](delivery/m2-feedback-m3-plan.md). The reported removal failure remains open; source inspection identifies a required-reason/hidden-error path, not a confirmed live response.

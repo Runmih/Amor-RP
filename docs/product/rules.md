@@ -38,6 +38,8 @@ resource belongs to it. Switching the display does not migrate assets.
 - Leave/removal cancels open trades, revokes effective grants, and makes inventory
   inaccessible. Rejoin uses the same character/group identity and quota history.
   Owner must grant creation/currency/removal permissions again after rejoin.
+- Default member roster shows active members only; owner may explicitly show
+  dormant/blocked recovery rows. Retain assets and quota history internally.
 - Dormant assets cannot be traded, consumed, or administratively adjusted; the owner
   can inspect dormant holding summaries for recovery, without reading letter bodies.
 - Ownership transfer: current owner proposes an active member; recipient accepts;
@@ -70,7 +72,12 @@ is visible only to its current holder.
 
 ## Currency
 
-One group-owned currency definition in 1.0: name, symbol, stable currency ID.
+One group-owned currency definition in 1.0: name, custom image icon, stable currency
+ID. Owner may upload static PNG, JPEG/JPG or WebP, at most 128 pixels on either
+axis; default coin icon is bundled. Changing/removing an icon preserves currency
+identity and balances. M2's text symbol remains legacy compatibility data.
+The server validates/normalizes images and enforces upload/group/owner limits;
+see the [M3 feedback plan](../delivery/m2-feedback-m3-plan.md).
 Balances and amounts are nonnegative signed-64-bit whole units internally, checked
 for overflow. Wire amounts are decimal strings to preserve precision in future
 clients. No float arithmetic. Negative adjustments require sufficient *available*

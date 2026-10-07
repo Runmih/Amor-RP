@@ -2,8 +2,8 @@
 
 **Status:** M2 implements durable authentication, character sessions, groups,
 members/invitations/ownership, weekly policies, currency, history and operation
-recovery, alongside M0/M1 endpoints. Inventory, categories, trading, data lifecycle
-and events remain planned. `x-implementation-status` in [OpenAPI](openapi.yaml)
+recovery, alongside M0/M1 endpoints. Inventory, categories, trading, data lifecycle,
+currency icon upload and events remain planned. `x-implementation-status` in [OpenAPI](openapi.yaml)
 is the authoritative per-operation status and is checked against source routes.
 Capabilities advertises the three individual grants; item/chat types stay empty
 until the product inventory path exists. Every operation carries explicit
@@ -68,6 +68,7 @@ not every endpoint will emit every listed error.
 | 409 | `quota_exhausted`, `insufficient_available_quantity`, `group_limit_reached`, `definition_changed`, `trade_revision_changed`, `trade_expired`, `idempotency_mismatch`, `operation_replay_expired`, `inventory_full` |
 | 412 / 428 | `version_mismatch` / `precondition_required` |
 | 413 / 422 | Body too large / semantically invalid fields, `invalid_quantity`, `invalid_message` |
+| 415 | Unsupported image format, `unsupported_media_type` (planned icon upload) |
 | 429 | `rate_limited`; include Retry-After |
 | 500 | `internal_error`; safe request ID, recover operation outcome before retry |
 | 503 | `maintenance`, `identity_provider_unavailable`, `temporarily_unavailable` |
@@ -161,6 +162,9 @@ Mutations are marked with an asterisk and require an idempotency key.
 | --- | --- | --- | --- |
 | GET | `/api/v1/groups/{groupId}/currency` | Group currency definition | Active member |
 | PATCH * | `/api/v1/groups/{groupId}/currency` | Rename currency without replacing identity | Owner |
+| GET | `/api/v1/groups/{groupId}/currency/icon` | Planned M3: normalized PNG; default icon when absent | Active member |
+| PUT * | `/api/v1/groups/{groupId}/currency/icon` | Planned M3: bounded static image upload/replace; preserve currency identity | Owner |
+| DELETE * | `/api/v1/groups/{groupId}/currency/icon` | Planned M3: remove custom image; use bundled default | Owner |
 | GET | `/api/v1/groups/{groupId}/balances` | Own available/reserved currency | Active member |
 | POST * | `/api/v1/groups/{groupId}/currency/adjustments` | Issue/remove whole-unit currency with reason | Owner or currency.manage; target active |
 
@@ -347,3 +351,23 @@ M2 has manual refresh and no event stream; eventCursor is null.
 An older same-key refresh replay is rejected with `refresh_superseded` after a
 later renewal; it cannot supply obsolete credentials. A different-key reuse of
 an unexpired consumed refresh credential revokes the session family.
+
+## Planned M3 currency icon boundary
+
+The three currency icon routes are planned, not available in M2. Upload a single
+local static PNG, JPEG/JPG or WebP with `multipart/form-data`; no external image URL.
+Both dimensions must be at most 128 pixels. A recommended configurable 256 KiB
+encoded-file limit is advertised to clients; the route has its own bounded body
+allowance including multipart overhead rather than the current JSON ceiling.
+Validate actual decoded format and resource bounds, reject animation/malformed
+content, strip metadata and normalize to PNG before PostgreSQL persistence.
+
+PUT/DELETE require the currency's current `If-Match` and the same logical mutation's
+idempotency key. Fingerprints include the upload content hash and ETag, not unstable
+multipart boundaries. Mutations return updated currency plus operation receipt;
+update version/reference/audit atomically without replacing currency identity or
+changing balances. The optional `iconAssetId` response field is planned for M3.
+M2 text symbol fields remain compatible legacy data during migration; release UI
+uses custom or bundled icons. Reads require current active membership and use
+Authorization headers on the configured backend, with no public media directory.
+See [M2 feedback plan](../delivery/m2-feedback-m3-plan.md) for UI and asset lifecycle.

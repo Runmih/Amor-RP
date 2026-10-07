@@ -139,3 +139,24 @@ Export/deletion, operator cleanup, detailed abuse/load testing, backup/restore a
 release distribution are future gates. OAuth token rotation and DB commit cannot
 be atomic; lost provider responses can require reauthentication with assets intact.
 See [M2 checks](../delivery/m2-install-test.md) for the hosted renewal gate.
+
+
+## Planned M3 currency image controls
+
+Currency icons are the sole custom-upload exception in 1.0. Owner changes require
+current authority, currency ETag, idempotency and an audit receipt; reads require
+current active membership. Accept only bounded decoded static PNG/JPEG/WebP, at
+most 128x128, with a recommended advertised 256 KiB encoded-file cap and a separate
+bounded multipart body allowance. Reject animations, malformed files, SVG, external
+URLs and decoder resource excess. Normalize to PNG and strip metadata using a
+maintained decoder with reviewed licensing/deployment compatibility. Persist
+normalized bytes in group-scoped PostgreSQL assets, with no public media directory.
+Serve from the configured backend with header authentication; private caches are
+bounded and cleared on access loss/unload. Verify isolation, valid formats,
+malformed/oversize rejection, replacement, removal and restart persistence in M3.
+
+M3 also separates persistent safe command-result feedback from read-refresh status.
+Expose sanitized status/code/request ID and operation key for troubleshooting;
+never display raw payloads, secrets or private content. A rejected removal produces
+no successful group-history event. Do not weaken authorization/version checks to
+make a failing interaction appear successful.

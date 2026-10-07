@@ -53,3 +53,5 @@ boundary exists. Generated endpoint tables must match OpenAPI.
 - **Period:** server-defined weekly interval used to track creation usage.
 - **Reservation:** items/currency held for an open trade, still owned by the offerer.
 - **Operation ID:** durable identifier for a completed inventory/currency mutation.
+
+Current feedback and next implementation order: [M2 feedback/M3 plan](delivery/m2-feedback-m3-plan.md). M2 has a reported removal issue; M3 carries its fix and the requested display/currency-icon changes.

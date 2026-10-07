@@ -2230,6 +2230,209 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CurrencyEdit'
+  /api/v1/groups/{groupId}/currency/icon:
+    get:
+      operationId: getCurrencyIcon
+      tags:
+      - Currency
+      summary: Read the group currency icon
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Read the group currency icon
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Current currency version.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '415':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Active member
+      x-implementation-status: planned
+      x-delivery-milestone: M3
+      parameters:
+      - &currencyIcon001
+        name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      description: Normalized static PNG. Requires current membership; 404 when no custom
+        icon or no access. The plugin uses a bundled default icon when absent. Use Authorization
+        headers, never credential-bearing URLs or a public media directory.
+    put:
+      operationId: replaceCurrencyIcon
+      tags:
+      - Currency
+      summary: Upload or replace the group currency icon
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Upload or replace the group currency icon
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditCurrencyResult'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Current currency version.
+            Idempotency-Replayed:
+              schema:
+                type: boolean
+              description: True means the original committed response.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '415':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      x-delivery-milestone: M3
+      parameters:
+      - *currencyIcon001
+      - &currencyIcon002
+        name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUIDv7. Same logical request retains key; upload fingerprint includes
+          validated file content and If-Match, not the multipart boundary.
+      - &currencyIcon003
+        name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: Current currency ETag from GET /api/v1/groups/{groupId}/currency.
+      description: Static PNG, JPEG/JPG or WebP only, verified by bounded decoding;
+        both dimensions at most 128 pixels. Reject animation, malformed images and external
+        URLs. Recommended encoded-file ceiling 256 KiB, configurable and advertised.
+        Use a separately bounded multipart allowance rather than the JSON limit. Normalize
+        to metadata-free PNG, persist in PostgreSQL, update currency version and audit
+        atomically; currency ID and balances remain unchanged.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CurrencyIconUpload'
+    delete:
+      operationId: removeCurrencyIcon
+      tags:
+      - Currency
+      summary: Remove the custom currency icon
+      security:
+      - Session: []
+      responses:
+        '200':
+          description: Remove the custom currency icon
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditCurrencyResult'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Current currency version.
+            Idempotency-Replayed:
+              schema:
+                type: boolean
+              description: True means the original committed response.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '415':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '428':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+        '503':
+          $ref: '#/components/responses/Problem'
+      x-authorization-policy: Owner
+      x-implementation-status: planned
+      x-delivery-milestone: M3
+      parameters:
+      - *currencyIcon001
+      - *currencyIcon002
+      - *currencyIcon003
+      description: Clear the custom icon with an audited idempotent operation; the plugin
+        falls back to its bundled default. Preserve currency ID and balances. Authorize
+        before returning a replay; retain only media needed under the documented recovery/retention
+        policy.
   /api/v1/groups/{groupId}/balances:
     get:
       operationId: getOwnBalances
@@ -5205,6 +5408,13 @@ components:
         symbol:
           type: string
           maxLength: 16
+          deprecated: true
+          description: Legacy M2 text symbol; release UI renders the custom or bundled currency icon.
+        iconAssetId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Planned M3 group-scoped asset reference; omitted by M2, null when no custom icon.
         version: *id005
       required:
       - id
@@ -5234,6 +5444,18 @@ components:
       - available
       - version
       additionalProperties: true
+    CurrencyIconUpload:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: One static PNG, JPEG/JPG or WebP; at most 128x128 pixels, recommended
+            maximum encoded size 256 KiB. Actual format and resource bounds are verified
+            before persistence.
+      required:
+      - file
+      additionalProperties: false
     CurrencyEdit:
       type: object
       properties:
@@ -5241,6 +5463,8 @@ components:
         symbol:
           type: string
           maxLength: 16
+          deprecated: true
+          description: Legacy M2 compatibility field; custom image changes use the currency icon endpoint.
       required:
       - name
       - symbol
@@ -5307,6 +5531,8 @@ components:
         currencySymbol:
           type: string
           maxLength: 16
+          deprecated: true
+          description: Legacy M2 compatibility field; custom image changes use the currency icon endpoint.
         weeklyPotionPoints:
           type: integer
           format: int32
