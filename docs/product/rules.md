@@ -15,6 +15,12 @@ matching. Authentication uses provider-verified identity, never a client asserti
 alone. Store a verified stable character key; names/worlds are mutable display
 fields. Provider identity migration must be explicit. No inventory merging by name.
 
+Rename and home-world transfer preserve the same internal Character ID, inventory,
+currency, memberships, permissions, restrictions and quota history. Verified
+provider profile updates change display fields only. Existing assets remain intact
+while a stale provider profile or fresh verification is resolved; never create a
+new inventory merely because the old name/world no longer matches.
+
 Every item, definition, category, currency record, reservation, and operation has
 a group ID. A command specifies its group; the server checks each referenced
 resource belongs to it. Switching the display does not migrate assets.

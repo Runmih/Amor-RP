@@ -1,6 +1,7 @@
 # Data model and transaction boundaries
 
-Proposed PostgreSQL schema; no migration or live database exists yet. UUIDs are
+Proposed product schema. M0 has an infrastructure bootstrap migration; M1 identity
+probes are memory-only. Durable product entities below are not implemented yet. UUIDs are
 opaque server IDs. All timestamps are UTC `timestamptz`. Revision counters are
 monotonic integers. Monetary amounts use checked signed `bigint`; positive deltas
 create supply, negative deltas destroy supply. Text is bounded by validated service
@@ -10,8 +11,8 @@ options, with plain-text storage.
 
 | Entity | Key fields and purpose |
 | --- | --- |
-| Character | ID, provider namespace/stable verified key, current display name, home-world identity, verification timestamp, status |
-| IdentityBinding | Provider subject/character attestation binding; minimum data needed for login, no alt roster |
+| Character | Immutable internal ID, current display name, home-world identity, verification timestamp, status; asset ownership remains attached to this ID after rename/transfer |
+| IdentityBinding | Character ID, provider namespace, verified Lodestone ID and ownership key/attestation binding; minimum data needed for login, no alt roster |
 | LoginAttempt | ID, hashed bootstrap/attempt credential/state, selected character hint, expiry, encrypted short-lived exchange material, status |
 | Session | ID, character ID, hashed access/refresh credentials, expiry, refresh family, revoked timestamp |
 | Group | ID, owner character ID, name, description, version, deletion timestamp |
@@ -50,6 +51,11 @@ and short-lived auth cleanup, never the personal financial history.
 
 - Unique verified identity key within provider namespace. Provider values are not
   interchangeable with client-supplied IDs. Separate display names from ownership.
+- All character-owned product records reference the internal Character ID. A
+  verified rename/world transfer updates display metadata in place without new
+  balances, holdings, memberships or quota records. A changed ownership binding
+  requires explicit recovery; do not automatically reassign assets by public
+  Lodestone ID or a matching name/world.
 - Composite uniqueness/FKs enforce group equality between definitions, revisions,
   holdings, letters, currencies, trades and reservations. Application checks alone
   are insufficient to prevent accidental cross-group references.

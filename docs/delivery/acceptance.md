@@ -27,6 +27,15 @@ tests. In-game behavior requires human tests in FFXIV.
 
 ## Essential invariant scenarios
 
+For durable authentication, create a character with coins, items, memberships,
+permissions and spent weekly allowance. Rename it, then separately transfer its
+home world. Verify the same internal Character ID and unchanged product records
+after fresh provider verification; display/context fields update. Repeat with
+stale provider profile data and prove assets remain intact during refresh/retry.
+An unrelated character taking the old name/world cannot access those assets.
+Provider unlink/relink/account changes are tested separately and must not silently
+transfer ownership. Record real hosted provider evidence, not only mocked fixtures.
+
 1. Substitute a group B holding/definition/member/currency/trade/category ID into
    every applicable group A endpoint; deny without mutation or private-data leak.
 2. Send 20 parallel production requests with only enough budget for five copies;

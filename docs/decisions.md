@@ -20,6 +20,7 @@ concrete baseline for implementation planning, subject to product review.
 | A12 | Agreed | Context-menu trading; members can trade by default; owner can restrict a character. |
 | A13 | Agreed | Evaluate XIVAuth for authentication and verified character identity. |
 | A14 | Agreed | Existing project files may be completely replaced. The new product does not need to preserve the SDK 11 scaffold or its sample profile behavior. |
+| A15 | Agreed | Character rename or home-world transfer must preserve inventory, currency, group memberships, permissions and quota usage. Ownership uses an internal character ID linked to provider-verified identifiers; names/worlds are mutable display/context fields. |
 | R01 | Recommended | One repo; C# server, PostgreSQL, Render hosting. Plugin remains a separate deployment artifact. |
 | R02 | Recommended | Apply three-owned/six-joined limits per verified character. The user's original wording did not settle account versus character for group caps. Confirm before finalizing group admission. |
 | R03 | Recommended | Monday 00:00 UTC weekly boundary; no rollover; changes to weekly limits start next period. Potion allowance initially zero until owner configures it. |

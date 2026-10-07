@@ -48,8 +48,10 @@ Provider/browser login must be usable without another installed Dalamud plugin.
 
 ## Identity mapping
 
-- Use provider-verified stable character identity/attestation binding as persisted
-  ownership key. Record name and home world for display/context matching.
+- Allocate an internal immutable Character ID. Inventory, currency, membership,
+  permissions, quota usage and history refer to that ID, not a name/world string.
+  Link it to provider-verified character identifiers through IdentityBinding.
+  Record name and home world for display/context matching.
 - Never merge on current name or home world. Character rename/transfer updates
   display identity after fresh verification without resetting holdings or quotas.
 - A provider user can authenticate different verified characters; their group
@@ -57,6 +59,33 @@ Provider/browser login must be usable without another installed Dalamud plugin.
 - Explicitly test provider character unlink/relink, revocation and transfer to
   another provider account. Never silently transfer old assets to a new binding.
 - No Square Enix passwords, one-time passwords, or raw game account IDs are needed.
+
+### Rename and home-world transfer continuity
+
+The M1 source-reviewed XIVAuth response includes `lodestone_id` and `persistent_key`.
+Its [ownership-key implementation](https://github.com/XIVAuth/XIVAuth/blob/4bc2440684989cf8e56bc1169afcf5bd3a200172/app/models/character_registration.rb)
+derives `persistent_key` from Lodestone character ID, XIVAuth user identity and a
+provider secret; name and home world are not inputs. With the same character ID,
+provider user and provider key material, a name/world edit does not change that key.
+Provider secret rotation or association with another provider account is a different
+case and requires an explicit migration/recovery policy.
+
+For a returning verified binding, fetch/revalidate the authorized character using
+the stored Lodestone ID and verify the ownership key. The reviewed provider has
+`GET /api/v1/characters/{lodestone_id}` for this purpose; a public Lodestone ID
+alone never proves ownership. After verified profile refresh, update display name
+and home world on the existing internal Character record. Do not create a replacement
+record, reset quotas, rewrite asset owners or require joining groups again.
+Never accept a submitted new name/world as verification or silently skip matching
+the logged-in game character. If provider profile data is stale, request refresh and
+report the verification delay; preserve every existing asset and binding while it
+is resolved. This may require fresh verification, not asset migration or loss.
+
+M1 currently performs a name/world filter to locate the selected character during
+its temporary login probe. It does not yet implement returning durable bindings
+or own any inventories. Implement the stable-ID continuity flow with durable auth;
+demonstrate rename and real home-world transfer against hosted XIVAuth before
+accepting it. Source analysis alone is not live transfer evidence.
 
 ## Adapter boundary
 
