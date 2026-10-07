@@ -19,7 +19,7 @@ services:
     build:
       context: ..
       dockerfile: deploy/Dockerfile
-    image: amorrp-server:m0
+    image: amorrp-server:m2
     command: ["--migrate"]
     environment:
       ConnectionStrings__Database: "Host=database;Database=amorrp;Username=amorrp;Password=amorrp-local-only"
@@ -27,10 +27,16 @@ services:
       database: {condition: service_healthy}
 
   server:
-    image: amorrp-server:m0
+    image: amorrp-server:m2
     ports: ["127.0.0.1:5080:8080"]
     environment:
       ConnectionStrings__Database: "Host=database;Database=amorrp;Username=amorrp;Password=amorrp-local-only"
+      XivAuth__DurableEnabled: "${XivAuth__DurableEnabled:-false}"
+      XivAuth__ClientId: "${XivAuth__ClientId:-}"
+      XivAuth__ClientSecret: "${XivAuth__ClientSecret:-}"
+      XivAuth__DurableCallbackUrl: "${XivAuth__DurableCallbackUrl:-}"
+      SecretVault__ActiveKeyId: "${SecretVault__ActiveKeyId:-primary}"
+      SecretVault__Keys__primary: "${SecretVault__Keys__primary:-}"
     depends_on:
       migrate: {condition: service_completed_successfully}
 

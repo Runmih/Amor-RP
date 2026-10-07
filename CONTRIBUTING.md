@@ -1,6 +1,6 @@
 # Developing Amor RP
 
-Start with [M0 installation and tests](docs/delivery/m0-install-test.md).
+Start with [M2 build, installation and tests](docs/delivery/m2-install-test.md).
 Use .NET SDK 10.0.401, PostgreSQL 18, and the pinned official Dalamud references.
 The four application projects are under `src/`; automated tests are under `tests/`.
 

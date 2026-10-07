@@ -29,8 +29,8 @@ resource belongs to it. Switching the display does not migrate assets.
 
 - Limits: three owned and six active memberships, owned included. Pending invitations
   and dormant memberships do not consume a slot. Recommended scope: per character.
-- Owner creation atomically creates group, owner membership, currency, categories,
-  and policies. Admission and ownership-transfer limits use database locking.
+- Owner creation atomically creates group, owner membership, currency and policies.
+  M3 adds the default categories when the inventory feature becomes available. Admission and ownership-transfer limits use database locking.
 - Only owner issues revocable, expiring invitations. Joining requires explicit
   acceptance of group visibility/data rules; possession of a code is not membership.
 - Owner removal deactivates and blocks the member; restore returns eligibility to

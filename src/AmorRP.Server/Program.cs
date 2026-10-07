@@ -1,3 +1,9 @@
+using AmorRP.Server.Features.Authentication;
+using AmorRP.Server.Features.Groups;
+using AmorRP.Server.Features.Currency;
+using AmorRP.Server.Features.History;
+using AmorRP.Server.Infrastructure.Security;
+using System.Text.Json.Serialization;
 using AmorRP.Server.Features.Capabilities;
 using AmorRP.Server.Features.Health;
 using AmorRP.Server.Features.Feasibility;
@@ -19,25 +25,43 @@ var connectionString = builder.Configuration.GetConnectionString("Database");
 if (string.IsNullOrWhiteSpace(connectionString))
     throw new InvalidOperationException("Configure ConnectionStrings__Database before starting the server.");
 
+builder.Services.AddOptions<SessionPolicyOptions>().BindConfiguration("SessionPolicy").ValidateDataAnnotations().ValidateOnStart();
 builder.Services.AddOptions<ServicePolicyOptions>()
     .BindConfiguration("ServicePolicy").ValidateDataAnnotations().ValidateOnStart();
 builder.Services.AddDbContext<AmorDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddScoped<DatabaseReadiness>();
+builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow);
+builder.Services.AddScoped<SecretVault>();
+builder.Services.AddOptions<SecretVaultOptions>().BindConfiguration("SecretVault")
+    .Validate(o => !builder.Configuration.GetValue<bool>("XivAuth:DurableEnabled") || o.IsValid(), "Durable authentication requires a configured 32-byte encryption key ring.").ValidateOnStart();
+builder.Services.AddScoped<CommandStore>();
+builder.Services.AddScoped<PageCursor>();
+builder.Services.AddScoped<SessionAccess>();
+builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddScoped<GroupAccess>();
+builder.Services.AddScoped<GroupService>();
+builder.Services.AddScoped<CurrencyService>();
+builder.Services.AddScoped<HistoryService>();
+builder.Services.AddHttpClient<IDurableIdentityProvider, DurableXivAuthProvider>(client => {
+    client.Timeout = TimeSpan.FromSeconds(15); client.MaxResponseContentBufferSize = 65536;
+}).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
 {
-    context.ProblemDetails.Extensions["code"] = context.ProblemDetails.Status switch
+    if (!context.ProblemDetails.Extensions.ContainsKey("code")) context.ProblemDetails.Extensions["code"] = context.ProblemDetails.Status switch
     {
         401 => "unauthorized", 409 => "conflict", 429 => "rate_limited",
         503 => "service_unavailable", >= 500 => "server_error", _ => "invalid_request"
     };
     context.ProblemDetails.Extensions["requestId"] = context.HttpContext.TraceIdentifier;
 });
-builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = 65536);
+builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize =
+    (builder.Configuration.GetSection("ServicePolicy").Get<ServicePolicyOptions>() ?? new()).MaxRequestBytes);
 // OAuth codes/state and provider grants must not appear in request/client logs.
 builder.Logging.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.Warning);
 builder.Logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
 builder.Services.AddOptions<XivAuthOptions>().BindConfiguration("XivAuth")
     .Validate(options => options.IsValid(), "Enabled XIVAuth requires client credentials and the exact HTTPS feasibility callback.")
+    .Validate(options => options.DurableIsValid(), "Durable XIVAuth requires client credentials and the exact HTTPS callback.")
     .ValidateOnStart();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IdentityProbeStore>();
@@ -48,6 +72,11 @@ builder.Services.AddHttpClient<ICharacterIdentityProvider, XivAuthProvider>(clie
 }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
 builder.Services.AddRateLimiter(options =>
 {
+    var ratePolicy = builder.Configuration.GetSection("ServicePolicy").Get<ServicePolicyOptions>() ?? new ServicePolicyOptions();
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        context.Request.Path.StartsWithSegments("/health") ? RateLimitPartition.GetNoLimiter("health")
+        : RateLimitPartition.GetFixedWindowLimiter("api", _ => new FixedWindowRateLimiterOptions {
+            PermitLimit = ratePolicy.ApiRequestsPerMinute, Window = TimeSpan.FromMinutes(1), QueueLimit = 0, AutoReplenishment = true }));
     options.RejectionStatusCode = 429;
     options.OnRejected = async (context, _) =>
     {
@@ -57,7 +86,7 @@ builder.Services.AddRateLimiter(options =>
     };
     options.AddFixedWindowLimiter("identity-probe", limiter =>
     {
-        limiter.PermitLimit = 180;
+        limiter.PermitLimit = ratePolicy.LoginRequestsPerMinute;
         limiter.Window = TimeSpan.FromMinutes(1);
         limiter.QueueLimit = 0;
         limiter.AutoReplenishment = true;
@@ -75,11 +104,24 @@ if (migrate)
 }
 
 app.UseExceptionHandler();
+app.Use(async (context, next) => {
+    try { await next(context); }
+    catch (ApiFault fault) when (!context.Response.HasStarted) {
+        context.Response.Headers.CacheControl = "no-store";
+        if (fault.Status == 429) context.Response.Headers.RetryAfter = "60";
+        await Results.Problem(statusCode: fault.Status, title: fault.Message,
+            extensions: new Dictionary<string, object?> { ["code"] = fault.Code, ["requestId"] = context.TraceIdentifier }).ExecuteAsync(context);
+    }
+});
 app.UseStatusCodePages();
 app.UseRateLimiter();
 app.MapHealthEndpoints();
 app.MapCapabilitiesEndpoints();
 app.MapFeasibilityEndpoints();
+app.MapAuthenticationEndpoints();
+app.MapGroupEndpoints();
+app.MapCurrencyEndpoints();
+app.MapHistoryEndpoints();
 await app.RunAsync();
 
 public partial class Program;

@@ -1,7 +1,8 @@
 # Deployment, operations and data recovery
 
-Proposed host: Render web service plus managed PostgreSQL, one region, one initial
-API instance. No infrastructure has been provisioned. Application and database
+Host: Render web service plus managed PostgreSQL, one region, one initial API
+instance. The maintainer reported M1 deployment/login testing passed; this
+workspace has no hosted credentials. M2 upgrade configuration is in the [guide](m2-install-test.md). Application and database
 remain portable through Docker and standard PostgreSQL.
 
 Follow the [version matrix](../engineering/versions.md). Explicitly provision
@@ -94,3 +95,13 @@ Before testers: publish operator/support contact, data/privacy notice, retention
 export/deletion route, known limits, outage and maintenance notices. Groups are
 closed but do not constitute encrypted private messaging. Owner moderation governs
 alt usage and member trading. Assign responsibility for service bills and updates.
+
+## M2 secrets and schema upgrade
+
+Keep the encryption key ring separate from DB backups and include it in secure
+recovery instructions. Add keys by ID; never overwrite an old key still referenced
+by envelopes/backups. The M2 migration is additive to the M0 bootstrap. Deploy the
+reviewed migration through the existing pre-deploy command before the new API.
+Probe callbacks and product callbacks have separate options; disable the old
+probe surface when it is no longer needed. CLI local native execution can use
+`deploy/.env.example` for variable names without storing real values in source.

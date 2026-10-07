@@ -179,4 +179,5 @@ Automated evidence: complete Release build, zero warnings/errors; 53 tests
 (34 plugin, 18 server including four PostgreSQL cases, one contract boundary).
 Tests use an injected provider **only in test code**; there is no runtime mock
 login mode. A successful test fixture is not a successful live XIVAuth login.
-Live Render/XIVAuth and M1 game checks remain pending with the maintainer.
+Acceptance update 2026-10-07: the maintainer reported M1 passed. This historical
+guide records M1 build-time evidence; M2 uses the new [upgrade guide](m2-install-test.md).

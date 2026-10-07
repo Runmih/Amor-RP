@@ -15,6 +15,36 @@ adapter, bounded temporary store and six probe routes), `Plugin/Services/Game/`
 These spike sessions are deliberately separate from future durable authentication
 and persistence. See [M1 setup](../delivery/m1-install-test.md).
 
+M2 adds implemented feature folders:
+
+```text
+src/AmorRP.Contracts/
+  Auth/ Groups/ Currency/ History/ Common/      # wire records, no EF/game dependencies
+src/AmorRP.Server/
+  Features/Authentication/                      # persistent login/session/provider adapter
+  Features/Groups/                             # access + GroupService, membership/invite/owner partials
+  Features/Currency/                           # balance queries and transactional adjustment
+  Features/History/                            # personal/owner logs and own receipt recovery
+  Infrastructure/Persistence/Entities/         # one file per stored entity
+  Infrastructure/Persistence/CommandStore.cs   # DB locks, idempotency, version preconditions
+  Infrastructure/Persistence/PageCursor.cs     # actor/list-bound opaque pagination
+  Infrastructure/Security/                    # safe faults and versioned secret vault
+  Options/SessionPolicyOptions.cs             # validated lifecycle limits
+src/AmorRP.Plugin/
+  Features/Groups/GroupsPanel.cs                # async login/state orchestration
+  Features/Groups/GroupScreens.cs               # group/member/owner/history screens
+  Services/Api/FoundationClient.cs              # product HTTP, same-key retries, safe errors
+  Services/Identity/SavedSession.cs             # DPAPI credentials and unresolved command save
+```
+
+The provider's durable adapter remains next to its authentication feature in M2;
+M1's adapter stays in Feasibility. M3 adds Inventory/type folders when implemented.
+GroupService's partial files keep the shared transaction/access boundary while
+separating memberships, invitations and ownership for navigation. Persistence
+entities never leave Server; only Contracts cross into Plugin.
+
+Dependency notices are in `licenses/` and travel in the plugin ZIP.
+
 The solution, dependency/tool pins, package locks, deployment recipes, source/package
 scripts and two CI workflows exist. Required JSON is no longer blanket-ignored.
 Git history, current documentation and license are preserved. No extra backend

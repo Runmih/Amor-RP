@@ -2,8 +2,9 @@
 
 Reviewed 2026-10-06. M0 now builds against this baseline with pinned dependencies.
 The old scaffold has been replaced. M0 game testing was reported successful by
-the maintainer; M1 game/provider tests, hosted CI and the server image build remain
-pending. See [M1 evidence](../delivery/m1-install-test.md).
+the maintainer. M1 passed per maintainer report on 2026-10-07. M2 live renewal
+and new plugin workflows await acceptance; hosted CI/container evidence is
+separate. See the [M2 guide](../delivery/m2-install-test.md).
 Other product features remain planned. No SDK 11 compatibility or legacy profile
 migration is required for the new product.
 
@@ -151,5 +152,15 @@ M4 exercises supported client/server combinations during deployment/reconnect.
 M5 checks installation, new-product settings upgrade, schema compatibility and
 backup restoration on the exact release artifacts. Test/image pins are now selected;
 the M1 source-reviewed adapter is isolated from durable sessions. M0 game testing
-was reported successful; remaining hosted CI/container evidence and live M1
-provider/game gates are recorded separately.
+and M1 were reported successful; M2 hosted renewal/game workflows and CI/container
+evidence are recorded separately.
+
+## M2 additions
+
+Plugin `0.0.3.0`, server `0.0.3`, API v1, minimum product client `0.0.3`.
+Host/SDK/.NET/PostgreSQL pins remain those above; M1 acceptance does not invent
+new version evidence. `System.Security.Cryptography.ProtectedData` is pinned to
+`10.0.12` for Windows CurrentUser DPAPI and included in the plugin package.
+Server envelope encryption uses the .NET 10 AES-GCM implementation; OAuth/PKCE
+uses .NET HTTP and WebUtilities against the same reviewed provider source.
+Durable flow adds minimal `refresh` scope; hosted behavior is an M2 check.

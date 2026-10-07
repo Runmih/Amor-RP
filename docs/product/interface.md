@@ -136,3 +136,19 @@ the previous backend's credentials to the new URL. Release builds require HTTPS.
 Before 1.0, validate keyboard navigation, UI scaling, long names/letters, percent
 signs, Unicode, two potion revisions with identical names, and unfamiliar-user flows
 with testers. Product text must explain actions, not internal API mechanisms.
+
+## M2 test-build navigation
+
+`/amorrp` opens Character login plus four tabs: Groups, Members & currency,
+Owner settings, History & devices. Groups shows the group selector, your currency,
+join visibility acceptance and creation with first-week limits. Members selects
+stable roster IDs for direct grants, restrictions, removal, coin changes and
+ownership proposals. Owner settings exposes current/scheduled policies, renaming,
+invitations, ownership cancellation and exact-name deletion. History/devices shows
+personal or owner history and session revocation. Save/renewal work is asynchronous
+and disables changes while pending. Unresolved commands retain their retry key and
+require retry/receipt reconciliation before another mutation.
+
+The selected group is saved per backend/verified character. Inventory, compact
+consumables and trading tabs arrive at their milestones. Diagnostics stays under
+an explicit M1 section; its chat test is not a currency/item use action.

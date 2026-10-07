@@ -104,3 +104,11 @@ service while trades are open. Alerts/reporting and budget settings must be exer
 - Distribution path selected. Official submission requires actual human review,
   personal testing, AI-use disclosure and human-written submission text under current policy.
 - Human maintainer signs off scope/usability, deployment and maintenance responsibility.
+
+## Recorded milestone status
+
+M0: testing reported successful 2026-10-06. M1: passed per maintainer report
+2026-10-07. M2: implemented for testing; local verification and the new live exit
+checklist are documented in the [M2 guide](m2-install-test.md). Earlier acceptance
+does not claim a new refresh scope was demonstrated. Existing 1.0 feature rows
+remain release criteria, not all completed features.

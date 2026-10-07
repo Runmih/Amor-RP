@@ -18,4 +18,5 @@ public sealed record PublicLimits(
     int ChatMessageTextElements, int LetterTitleTextElements, int LetterBodyTextElements,
     int MaxPageSize, int MaxHoldingsPerCharacterGroup, int MaxTradeLinesPerSide,
     int MaxCreationQuantity, int TradeLifetimeSeconds, string ResetWeekdayUtc,
-    string ResetTimeUtc, int MaxRequestBytes);
+    string ResetTimeUtc, int MaxRequestBytes, int MaxWeeklyPotionPoints = 1000000, int MaxWeeklyLetters = 10000,
+    int MaxActiveInvitationsPerGroup = 100, int OwnershipProposalHours = 24);

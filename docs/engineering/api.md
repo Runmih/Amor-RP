@@ -1,12 +1,13 @@
 # API contract and endpoint catalog
 
-**Status: proposed 1.0 contract; M0 implements three public GETs:** `/health/live`,
-`/health/ready`, and `/api/v1/capabilities`. M1 adds the six temporary feasibility
-operations catalogued below. Durable auth and product routes remain planned.
-Capabilities advertises empty type/permission/chat lists until those features
-exist. [OpenAPI](openapi.yaml) is the
-machine-readable route/schema catalog. Every operation has explicit authorization
-metadata; framework `security` authentication alone is not enough to implement it.
+**Status:** M2 implements durable authentication, character sessions, groups,
+members/invitations/ownership, weekly policies, currency, history and operation
+recovery, alongside M0/M1 endpoints. Inventory, categories, trading, data lifecycle
+and events remain planned. `x-implementation-status` in [OpenAPI](openapi.yaml)
+is the authoritative per-operation status and is checked against source routes.
+Capabilities advertises the three individual grants; item/chat types stay empty
+until the product inventory path exists. Every operation carries explicit
+authorization metadata; authentication alone never grants group access.
 Paths below are on the configured backend authority. No provider URLs are invented.
 
 ## Conventions
@@ -24,7 +25,7 @@ Paths below are on the configured backend authority. No provider URLs are invent
   character identity. Reuse only for that login start; redact it from logs.
 - Every mutation requires `Idempotency-Key` (UUIDv7). Scope is authenticated
   character, or secret-bound bootstrap/attempt/refresh family for auth commands, plus
-  method/path and canonical payload. Same key/different payload is rejected.
+  method/path, If-Match and canonical payload. Same key/different payload is rejected.
 - New keys must have a timestamp within the last 24 hours (bounded future skew).
   Asset-command records replay for seven days; auth replay is additionally bounded
   by attempt/credential validity and revocation. Once response replay expires, reject
@@ -324,3 +325,25 @@ API. They cannot authorize groups, inventory or trading. See the [M1 setup guide
 | POST | `/api/v1/feasibility/login-attempts/{attemptId}/exchange` | Exchange temporary attempt for five-minute probe session |
 | GET | `/api/v1/feasibility/identity` | Check temporary authenticated reconnect |
 | DELETE | `/api/v1/feasibility/session` | Revoke temporary probe session |
+
+## M2 implementation notes
+
+The [M2 guide](../delivery/m2-install-test.md) records deployment, plugin workflows
+and the remaining live renewal check. Login start now includes `homeWorldName`
+as a non-authoritative discovery hint and optional `knownCharacterId` for saved
+identity reauthentication. Returning lookup and renewal use the stored Lodestone
+ID and verified ownership key exclusively. Home-world numeric IDs are display
+hints, never proof of identity or authorization.
+
+Group, member, invitation and policy writes lock PostgreSQL character/group
+resources in sorted order. Current membership/owner/grants are checked on each
+command. Currency updates and before/after ledger records commit atomically.
+Operation responses are encrypted; a UUID key alone cannot retrieve login secrets.
+After leave/deletion, recover the actor's receipt via operations/key lookup; a
+resource replay still requires current access. List cursors are encrypted and
+bound to actor, group and list filters. History pages show newest entries first.
+M2 has manual refresh and no event stream; eventCursor is null.
+
+An older same-key refresh replay is rejected with `refresh_superseded` after a
+later renewal; it cannot supply obsolete credentials. A different-key reuse of
+an unexpired consumed refresh credential revokes the session family.

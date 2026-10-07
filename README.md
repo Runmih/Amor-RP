@@ -3,15 +3,15 @@
 Amor RP is a planned FFXIV Dalamud interface for fictional RP currency, potions,
 letters, and trading inside isolated, owner-managed groups.
 
-**Status:** M0 testing reported successful; M1 feasibility implementation available.
-The plugin adds XIVAuth browser login probes, player context-menu inspection and
-startup-consented chat tests. The server retains PostgreSQL readiness and adds
-isolated, temporary identity probes. Durable authentication, groups, inventory and
-trading are later work. Live M1 XIVAuth/Render/game evidence is still required.
+**Status:** M0 and M1 testing reported successful. M2 implements saved character
+login, isolated groups, invitations, ownership transfer, individual action grants,
+weekly policies and currency with administrative history. Inventory and trading
+follow in M3 and M4.
 
-Start testing with the [M1 installation guide](docs/delivery/m1-install-test.md).
-The [M0 guide](docs/delivery/m0-install-test.md) records the foundation build.
-For another agent or environment, use the [handoff](docs/delivery/agent-handoff.md).
+Install and test with the [M2 upgrade guide](docs/delivery/m2-install-test.md).
+The [M0](docs/delivery/m0-install-test.md) and [M1](docs/delivery/m1-install-test.md)
+guides retain earlier milestone records. For another agent or environment, use
+[the handoff](docs/delivery/agent-handoff.md).
 
 Start with the [documentation index](docs/README.md), then read the
 [1.0 scope](docs/product/scope.md), [roadmap](docs/delivery/roadmap.md), and

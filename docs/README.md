@@ -4,8 +4,8 @@ Specification date: 2026-10-06. Target: Amor RP 1.0.
 
 This documentation specifies the intended product. M0 implements three public
 server GETs and the diagnostic plugin; M1 adds six isolated feasibility operations.
-The durable authentication and product contracts are planned.
-Use the [M1 installation/test guide](delivery/m1-install-test.md) for actual commands
+M2 implements saved authentication and the group/currency foundation; inventory and trading remain planned.
+Use the [M2 installation/test guide](delivery/m2-install-test.md) for actual commands
 and verification evidence, and the [agent handoff](delivery/agent-handoff.md) when
 continuing in another environment. Numeric operational limits and
 unconfirmed product choices are recommendations, identified in the decision

@@ -1,29 +1,25 @@
 # Sanity check and implementation readiness
 
-Review date: 2026-10-06. Verdict: **a clean, working 1.0 is feasible with this scope,
-but it is not implemented or externally validated yet.** There is enough product
-detail to start the foundational implementation and feasibility spikes. There is
-not enough evidence to promise a release date or declare all prerequisites satisfied.
+Review date: 2026-10-07. **A clean 1.0 remains feasible. M2 is implemented for
+acceptance; the complete 1.0 product is still in development.** The remaining
+largest engineering risk is atomic trading and recovery, followed by inventory
+quota/revision behavior and release operations.
 
 ## Existing code assessment
 
-The legacy scaffold has been replaced. Four application projects compile with
-.NET 10 and the real API 15 assemblies. The M0 server has three public GET routes,
-validated policy configuration, a versioned PostgreSQL bootstrap migration and
-readiness checks. The plugin has local character display, saved backend origin,
-asynchronous diagnostics and lifecycle cleanup. No verified identity, inventory,
-quota accounting or trading exists yet.
+Four application projects build against .NET 10 and Dalamud API 15. M0 and M1
+passed per maintainer reports; exact hosted/game logs and credentials are not in
+this workspace. M2 adds durable IDs/sessions, group/owner/member management,
+individual grants, weekly policy scheduling, currency ledger/history/recovery and
+plugin screens. Inventory/quota spending, categories, trades and lifecycle/event
+features remain later milestones. See [M2 setup and evidence](delivery/m2-install-test.md).
 
-Sample metadata/assets, IDE artifacts and obsolete backend/relay scaffolds were
-removed; required JSON and locks are now included by the targeted ignore rules.
-22 focused automated tests passed against PostgreSQL 18.6. Native published server
-startup, migration, OpenAPI response shapes and database outage/recovery were checked.
-See [M0 installation and evidence](delivery/m0-install-test.md) and the
-[version matrix](engineering/versions.md).
-
-Live game loading/character display and hosted Windows CI are pending. The server
-image build is blocked here by the Microsoft CDN destination network policy;
-Docker recipe and image digests are supplied but that build is not declared verified.
+Real PostgreSQL tests cover caps, invite use, authority revocation, isolation,
+balance concurrency and retry behavior. No paid rename/transfer or separate
+simulated-rename gate is required. Hosted refresh with the new minimal scope is
+an M2 external check. This workspace cannot prove in-game rendering or use your
+hosted credentials. Container execution is separately limited by the Microsoft
+CDN network policy; CI/Render can supply that build evidence.
 
 ## Feasibility by area
 
@@ -33,9 +29,9 @@ Docker recipe and image digests are supplied but that build is not declared veri
 | Groups/capabilities/quotas | Straightforward domain, moderate transaction work | Concurrent caps and budget tests; product-default review |
 | Potion/letter inventory | Small and extensible enough for 1.0 | Immutable revisions, instance ownership and renderer tests |
 | Trading | Highest integrity risk; feasible but not trivial | Reservations, stale confirmations, restart and restriction races |
-| XIVAuth | Documented candidate, integration unproven | Real app registration/login, stable-key/renewal behavior |
-| Context menu/home world | Home-world display compiles; context menu awaits M1 | Live test including world travel and missing context fields |
-| Chat channels/consent | Plausible user-action feature, game integration unproven | Each channel, encoding, error and consent tested in game |
+| XIVAuth | M1 accepted; durable adapter built | M2 hosted refresh/revocation behavior |
+| Context menu/home world | M1 passed per maintainer | Live test including world travel and missing context fields |
+| Chat channels/consent | M1 passed; once-per-startup consent preserved | Each channel, encoding, error and consent tested in game |
 | Maintainable layout | Four projects and focused folders implemented | Human navigation/Windows build and release checks |
 | Official distribution | Separate uncertainty | Current platform review; human code understanding/testing/disclosure |
 
@@ -91,7 +87,7 @@ coverage for all 16 feature IDs. The reproducible checker is
 from those documentation checks. No live login/game interaction, hosted deployment
 or asset/trade transaction test has been performed.
 
-Finish the remaining M0 install/CI/container checks, then start M1. Authentication
+Complete M2 acceptance, then start M3 inventory. Keep CI/container evidence separate. Authentication
 and game integration resolve the largest external
 unknowns before investing in full interface polish. Database integration tests
 must resolve accounting/trade integrity. Finish the full feature loop with a small

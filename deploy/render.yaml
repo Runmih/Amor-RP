@@ -19,6 +19,14 @@ services:
         value: Production
       - key: XivAuth__Enabled
         value: "false"
+      - key: XivAuth__DurableEnabled
+        value: "false"
+      - key: XivAuth__DurableCallbackUrl
+        sync: false
+      - key: SecretVault__ActiveKeyId
+        value: primary
+      - key: SecretVault__Keys__primary
+        sync: false
       - key: XivAuth__ClientId
         sync: false
       - key: XivAuth__ClientSecret

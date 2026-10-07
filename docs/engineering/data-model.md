@@ -1,7 +1,7 @@
 # Data model and transaction boundaries
 
 Proposed product schema. M0 has an infrastructure bootstrap migration; M1 identity
-probes are memory-only. Durable product entities below are not implemented yet. UUIDs are
+probes are memory-only. M2 implements the identity/session/group/currency subset described below; inventory/trades and full lifecycle records remain planned. UUIDs are
 opaque server IDs. All timestamps are UTC `timestamptz`. Revision counters are
 monotonic integers. Monetary amounts use checked signed `bigint`; positive deltas
 create supply, negative deltas destroy supply. Text is bounded by validated service
@@ -114,3 +114,33 @@ instances are distinct so books/equipment can gain their own instance payloads l
 Quota kind is an extensible string; weekly potion/letter mechanics stay separate.
 Archived categories and retired definitions remain resolvable for existing holdings.
 Do not make group-name or character-name changes rewrite asset identity.
+
+## M2 concrete mapping
+
+`characters` stores the immutable internal ID plus the sole XIVAuth binding
+(Lodestone ID unique, ownership-key SHA-256) and mutable profile. A future provider
+or explicit ownership recovery adds a reviewed binding migration; no name merge.
+`login_attempts`, `sessions` and `used_refresh_tokens` persist login, device renewal
+and consumed-token detection. Secrets use purpose-bound vault envelopes; bearer
+credentials/state/invitation codes are stored as hashes.
+
+`groups` stores owner, version, deletion state, the single 1.0 currency's stable ID,
+name/symbol/version and current/next weekly policy. `memberships` has a composite
+(group, character) key, state, individual capability array, trading restriction,
+version and single-currency owned/reserved/balanceVersion. Foreign keys enforce
+character/group membership references; balance checks enforce 0 <= reserved <= owned.
+`invitations` and `ownership_transfers` reference their group and stable recipients.
+All capability/restriction changes also have actor/reason/time in `operations`.
+
+`operations` stores scoped UUIDv7 key, request fingerprint (including If-Match),
+actor/group/subject, kind, UTC time, reason, currency delta/before/after and an
+encrypted response/status/ETag for seven-day replay. A unique scope/key index and
+transactional advisory locks enforce one committed effect. Actor receipts remain
+recoverable after leaving/deletion, with no private resource replay bypass.
+
+M2 keeps the one-currency balance/policy fields compact. The target catalog is a
+1.0 architecture map rather than a claim that every row type is a separate table
+already. M3 materializes immutable per-period quota snapshots when spending starts.
+A future multiple-currency migration extracts balances keyed by stable CurrencyId;
+public IDs, actor ownership and integer-string amounts need no replacement.
+Operator retention/purge is an M5 release gate; never reset usage on rejoin.

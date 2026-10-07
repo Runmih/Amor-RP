@@ -109,3 +109,33 @@ posting is unavailable. Owner oversight governs RP conduct and alt grants.
 No hardcoded production passwords, admin character lists, provider secrets or bypass
 headers. Development identity fixtures must be unavailable in release deployments.
 Disabling TLS verification or granting all capabilities for debugging is prohibited.
+
+## Implemented M2 controls
+
+Durable product sessions are separate from M1 probe credentials. Current owner,
+active membership and individual grants are checked from PostgreSQL on each
+command. Nonmember group/foreign member/foreign invitation requests return 404;
+a known member without the action gets 403. Character/group DB advisory locks
+serialize caps, membership/ownership changes, invite use and currency writes
+across server instances. Checked Int64 changes and ledger records are atomic.
+
+All product mutation keys are UUIDv7, request-bound including ETag, age-bounded
+on initial submission and replayed from a durable unique scope/key record.
+Responses that carry codes or grants are encrypted. Login start replay is bound
+to the secret request credential; polling/exchange require the attempt credential.
+One-use callback state is committed consumed before a provider call. Refresh
+rotation revalidates the exact stored Lodestone ID/key; unexpected reuse revokes
+the family. Ordinary credentials are 256-bit random values stored as hashes.
+
+The platform AES-GCM vault uses purpose-bound/versioned envelopes and separate
+operator keys with IDs; client saves use Windows DPAPI CurrentUser. Fixed provider
+TLS origin, redirect refusal, minimal character+refresh scopes, request/body bounds,
+validated text/amounts, required JSON fields and rejected unknown fields constrain
+the attack surface. HTTP/provider logging excludes callback/grant data, errors are
+safe ProblemDetails, and authenticated/callback responses are no-store. M2 has
+server-wide API/login rate budgets; refine actor/network partitioning at M5.
+
+Export/deletion, operator cleanup, detailed abuse/load testing, backup/restore and
+release distribution are future gates. OAuth token rotation and DB commit cannot
+be atomic; lost provider responses can require reauthentication with assets intact.
+See [M2 checks](../delivery/m2-install-test.md) for the hosted renewal gate.

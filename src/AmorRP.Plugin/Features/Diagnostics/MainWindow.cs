@@ -13,6 +13,7 @@ public sealed class MainWindow : Window, IDisposable
     private readonly Configuration configuration;
     private readonly Action save;
     private readonly FeasibilityPanel feasibility;
+    private readonly AmorRP.Plugin.Features.Groups.GroupsPanel groups;
     private readonly BackendProbe probe = new();
     private readonly CancellationTokenSource lifetime = new();
     private Task<ProbeResult>? pending;
@@ -26,6 +27,7 @@ public sealed class MainWindow : Window, IDisposable
         this.configuration = configuration;
         this.save = save;
         feasibility = new(playerState, party, chatConsent);
+        groups = new(playerState, configuration, save);
         backendUrl = configuration.BackendUrl;
         Size = new Vector2(650, 720);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -34,7 +36,7 @@ public sealed class MainWindow : Window, IDisposable
     public override void Draw()
     {
         // All game reads happen here, on Dalamud's draw/framework thread.
-        ImGui.TextUnformatted("Amor RP — M1 integration tests");
+        ImGui.TextUnformatted("Amor RP — M2 groups and currency");
         ImGui.Separator();
         if (playerState.IsLoaded)
         {
@@ -73,7 +75,8 @@ public sealed class MainWindow : Window, IDisposable
         ImGui.PopTextWrapPos();
         ImGui.Spacing();
         ImGui.Separator();
-        feasibility.Draw(backendUrl);
+        groups.Draw(backendUrl);
+        if (ImGui.CollapsingHeader("M1 diagnostic tools")) feasibility.Draw(backendUrl);
     }
 
     public void SelectTarget(CharacterTarget target) { feasibility.SelectTarget(target); IsOpen = true; }
@@ -82,6 +85,7 @@ public sealed class MainWindow : Window, IDisposable
     {
         lifetime.Cancel();
         feasibility.Dispose();
+        groups.Dispose();
         probe.Dispose();
         lifetime.Dispose();
     }

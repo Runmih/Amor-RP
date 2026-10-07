@@ -1,12 +1,10 @@
 # XIVAuth integration plan
 
-XIVAuth is the selected provider to evaluate. Its [official repository](https://github.com/XIVAuth/XIVAuth)
-documents OAuth authorization/device flows and character attestations. Its hosted
-service is [xivauth.net](https://xivauth.net/). This project has not registered an
-application or demonstrated a live hosted login yet. M1 implements an isolated
-OAuth/PKCE adapter and temporary probes; see the [M1 setup guide](../delivery/m1-install-test.md).
-The intended durable flow below is not implemented by those probes. Do not invent provider route
-names, scope strings, claim formats, or verification guarantees from these summaries.
+XIVAuth is the selected provider. The maintainer reported the M1 live probe
+successful on 2026-10-07. M2 implements the durable flow below, alongside the
+isolated probes; see the [M2 guide](../delivery/m2-install-test.md). M2's
+`character refresh` scope and live renewal still need explicit M2 acceptance.
+No provider client secret or hosted service credential is committed.
 
 The reviewed upstream route source contains an API v1 namespace. Hosted-service
 compatibility remains M1 evidence. Source-reviewed probes use authorization-code
@@ -83,9 +81,12 @@ the logged-in game character. If provider profile data is stale, request refresh
 report the verification delay; preserve every existing asset and binding while it
 is resolved. This may require fresh verification, not asset migration or loss.
 
-M1 currently performs a name/world filter to locate the selected character during
-its temporary login probe. It does not yet implement returning durable bindings
-or own any inventories. Implement the stable-ID continuity flow with durable auth.
+The M1 probe uses a name/world filter only for its initial temporary discovery.
+M2 initial login uses the same discovery hint; saved reauthentication submits
+`knownCharacterId`, resolves its stored Lodestone ID and fetches that exact provider
+resource. Session renewal also fetches exclusively by stored Lodestone ID. Both
+paths verify the ownership key before updating the existing internal Character
+record. Group balances and memberships never use name/world lookup.
 Provider identifier derivation is documented above. Live paid rename/transfer
 tests are waived because of their real-money cost (A16), and no separate simulated
 rename/transfer gate is required. Normal authentication tests cover verified
@@ -121,3 +122,27 @@ credentials are external setup dependencies, not information available in this r
 Review the [developer agreement](https://xivauth.net/legal/devagreement) before beta.
 If required stable identity or revocation support cannot be demonstrated, revise
 the adapter/session policy and this contract before declaring milestone M1 complete.
+
+## M2 durable storage and lifecycle
+
+Access credentials live for 30 minutes and rotating renewal credentials for 30
+days by default; `SessionPolicy` validates configurable bounds. Active use renews
+without browser login. Returning after the renewal window, explicit logout,
+revocation, lost local credentials or a provider grant failure requires browser
+login again. This preserves the character and assets, not a permanent browser grant.
+
+The server hashes Amor credentials and provider ownership keys. Provider refresh
+grants, PKCE verifiers and replay responses use .NET AES-GCM envelopes with
+purpose binding and key IDs. Keys live in the deployment's secret settings,
+separately from PostgreSQL; retain old keys for existing envelopes and backups.
+The plugin saves credentials with Windows DPAPI CurrentUser, bound to this machine
+and Windows user. It saves renewal and mutation retry keys before sending requests.
+There are no permission claims in bearer credentials; authority is read from DB.
+
+OAuth refresh and an Amor database commit cannot be one atomic transaction. A
+provider rotation whose response is lost may require fresh browser login; that
+cannot transfer or erase group assets. Hosted provider unlink/revocation behavior
+and this failure path remain M2 live checks, with further fault recovery at M5.
+Numeric home-world IDs are local display hints. A provider world-name update
+invalidates a stale numeric hint until fresh selected-character login updates it;
+M4 context matching must resolve verified world names through the game world sheet.

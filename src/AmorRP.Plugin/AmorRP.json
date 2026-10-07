@@ -2,8 +2,11 @@
   "Name": "Amor RP",
   "Author": "Runmih",
   "Punchline": "Roleplay currency and items in closed groups.",
-  "Description": "M1 feasibility: XIVAuth login, character context-menu inspection and chat tests with once-per-startup permission. Groups, inventory and trading arrive in later milestones.",
+  "Description": "M2: saved XIVAuth character login, isolated groups, invitations, individual action grants, weekly policies, currency and history. Potion/letter inventory and trading follow in later milestones.",
   "RepoUrl": "https://github.com/Runmih/Amor-RP",
-  "Tags": ["roleplay", "inventory"],
+  "Tags": [
+    "roleplay",
+    "inventory"
+  ],
   "ApplicableVersion": "any"
 }

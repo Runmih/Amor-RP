@@ -30,7 +30,7 @@ public sealed class IdentityProbeTests
         Assert.Equal("service_unavailable", problem.GetProperty("code").GetString());
         Assert.False(string.IsNullOrEmpty(problem.GetProperty("requestId").GetString()));
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/health/live", TestContext.Current.CancellationToken)).StatusCode);
-        Assert.Equal(HttpStatusCode.NotFound, (await client.PostAsync("/api/v1/auth/login-attempts", null, TestContext.Current.CancellationToken)).StatusCode);
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, (await client.PostAsJsonAsync("/api/v1/auth/login-attempts", new AmorRP.Contracts.Auth.LoginStart("Ada Example", "35", "Raiden"), TestContext.Current.CancellationToken)).StatusCode);
     }
 
     [Fact]

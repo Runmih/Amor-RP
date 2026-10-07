@@ -6,6 +6,12 @@ namespace AmorRP.Server.Options;
 
 public sealed class ServicePolicyOptions : IValidatableObject
 {
+    [Range(0, 10000000)] public int MaxWeeklyPotionPoints { get; set; } = 1000000;
+    [Range(0, 100000)] public int MaxWeeklyLetters { get; set; } = 10000;
+    [Range(1, 1000)] public int MaxActiveInvitationsPerGroup { get; set; } = 100;
+    [Range(1, 720)] public int OwnershipProposalHours { get; set; } = 24;
+    [Range(60, 100000)] public int ApiRequestsPerMinute { get; set; } = 6000;
+    [Range(60, 10000)] public int LoginRequestsPerMinute { get; set; } = 1200;
     [Range(1, 100)] public int OwnedGroups { get; set; } = 3;
     [Range(1, 100)] public int JoinedGroups { get; set; } = 6;
     [Range(0, 10000)] public int DefaultLettersPerWeek { get; set; } = 5;
@@ -33,6 +39,6 @@ public sealed class ServicePolicyOptions : IValidatableObject
             DefaultLettersPerWeek, DefaultPotionPoints, ChatMessageTextElements,
             LetterTitleTextElements, LetterBodyTextElements, MaxPageSize,
             MaxHoldingsPerCharacterGroup, MaxTradeLinesPerSide, MaxCreationQuantity,
-            TradeLifetimeSeconds, "Monday", "00:00:00", MaxRequestBytes);
+            TradeLifetimeSeconds, "Monday", "00:00:00", MaxRequestBytes, MaxWeeklyPotionPoints, MaxWeeklyLetters, MaxActiveInvitationsPerGroup, OwnershipProposalHours);
     }
 }

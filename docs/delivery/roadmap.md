@@ -13,13 +13,16 @@ Do not mark a milestone complete because its code exists without its exit eviden
 | M4: trading beta | Context-menu offers, reservations, currency+items, revisions/confirmations, restrictions, history | Concurrent acceptance matrix passes; two real players trade successfully; interruption recovery demonstrated |
 | M5: 1.0 candidate | Installation/updates, privacy/support, export/deletion, backup/restore, capacity, UI polish | Entire release checklist passes; no unresolved critical defect or integration gate; human release review |
 
-M0 in-game testing was reported successful by the maintainer on 2026-10-06.
-Hosted CI and a complete server container build still need their own recorded
-evidence. M1's isolated identity/context/chat probes are implemented; follow the
-[M1 setup and exit checklist](m1-install-test.md). Neither an XIVAuth application
-nor Render service was available during implementation. M1 is not accepted until
-live provider, deployment and channel/menu tests pass. Its five-minute probe
-sessions do not implement the durable product authentication contract.
+M0 in-game testing was reported successful on 2026-10-06. The maintainer reported
+**M1 passed on 2026-10-07**. Paid rename/world-transfer checks remain waived;
+there is no separate simulated-rename test gate. Exact external test logs and
+credentials were not supplied to this workspace and are not inferred.
+
+M2 is implemented for testing; see the [upgrade and exit checklist](m2-install-test.md).
+Durable login is included as a prerequisite: the memory-only M1 credentials cannot
+authorize product APIs. M2 adds PostgreSQL-backed sessions and `character refresh`
+provider scope. Hosted renewal and the new plugin workflows require M2 acceptance.
+Hosted CI/container execution needs separately recorded evidence.
 
 ## Dependency priorities
 
@@ -34,7 +37,7 @@ sessions do not implement the durable product authentication contract.
 - Letters and potions finish before adding more item types.
 - Beta data has a stated persistence policy and paid database before testers rely
   on it. Test and production databases are separate.
-- Resolve recommended cap scope before M2; quota/week/content/lifecycle rules before
+- M2 uses per-verified-character group caps, including independent alts; confirm this during M2 acceptance. Resolve quota/week/content/lifecycle rules before
   M3; distribution/capacity/privacy policy before M5.
 
 ## Product feedback gates

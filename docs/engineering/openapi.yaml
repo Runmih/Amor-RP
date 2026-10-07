@@ -163,7 +163,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Public bootstrap; secret retry credential; rate limited
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: Idempotency-Key
         in: header
@@ -223,7 +223,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: LoginAttempt
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: attemptId
         in: path
@@ -274,7 +274,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: LoginAttempt
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: attemptId
         in: path
@@ -331,7 +331,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: LoginAttempt
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: attemptId
         in: path
@@ -383,7 +383,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Exact callback; one-use state; provider exchange
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: code
         in: query
@@ -445,7 +445,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Valid refresh credential; replay key protected
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: Idempotency-Key
         in: header
@@ -504,7 +504,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Session
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: Idempotency-Key
         in: header
@@ -558,7 +558,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Session
-      x-implementation-status: planned
+      x-implementation-status: implemented
   /api/v1/me/sessions:
     get:
       operationId: listSessions
@@ -599,7 +599,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Session
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: cursor
         in: query
@@ -659,7 +659,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Session owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: sessionId
         in: path
@@ -712,7 +712,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Session
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: cursor
         in: query
@@ -771,7 +771,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Session
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: Idempotency-Key
         in: header
@@ -830,7 +830,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Session
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: Idempotency-Key
         in: header
@@ -890,7 +890,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -939,7 +939,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1008,7 +1008,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member except owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1065,7 +1065,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1135,7 +1135,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1184,7 +1184,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1249,7 +1249,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1318,7 +1318,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner; target active nonowner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1391,7 +1391,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner; active nonowner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1464,7 +1464,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner; active nonowner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1537,7 +1537,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner; blocked member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1664,7 +1664,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner or currency.manage; target active
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1728,7 +1728,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1791,7 +1791,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1854,7 +1854,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1915,7 +1915,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -1979,7 +1979,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Current owner or proposed recipient
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2033,7 +2033,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Proposed recipient; active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2094,7 +2094,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner or proposed recipient
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2156,7 +2156,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2205,7 +2205,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2270,7 +2270,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Active member
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -2334,7 +2334,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner or currency.manage; target active
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -4122,7 +4122,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Character participant; own history after leaving
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -4182,7 +4182,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Owner
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: groupId
         in: path
@@ -4247,7 +4247,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Actor or involved trade participant
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: operationId
         in: path
@@ -4298,7 +4298,7 @@ paths:
         '503':
           $ref: '#/components/responses/Problem'
       x-authorization-policy: Authenticated actor only; excludes login/refresh keys
-      x-implementation-status: planned
+      x-implementation-status: implemented
       parameters:
       - name: idempotencyKey
         in: path
@@ -4996,6 +4996,18 @@ components:
           type: integer
           format: int32
           minimum: 1
+        maxWeeklyPotionPoints:
+          type: integer
+          minimum: 0
+        maxWeeklyLetters:
+          type: integer
+          minimum: 0
+        maxActiveInvitationsPerGroup:
+          type: integer
+          minimum: 1
+        ownershipProposalHours:
+          type: integer
+          minimum: 1
       required:
       - ownedGroups
       - joinedGroups
@@ -5080,9 +5092,20 @@ components:
         homeWorldId:
           type: string
           minLength: 1
+        homeWorldName:
+          type: string
+          minLength: 1
+          maxLength: 80
+          description: Non-authoritative local world-name hint for first verification.
+        knownCharacterId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Saved internal character ID for stable-ID reauthentication.
       required:
       - displayName
       - homeWorldId
+      - homeWorldName
       additionalProperties: false
     LoginAttemptCreated:
       type: object

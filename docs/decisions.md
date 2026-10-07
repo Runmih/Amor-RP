@@ -48,3 +48,12 @@ The recommended choices provide a complete proposed behavior, rather than leavin
 endpoint implementations to guess. Resolve R02, R03, R05, R08, R10, R11, R13,
 R14, and R15 at their milestone gates. They do not block documentation or the
 initial identity/chat feasibility spikes.
+
+## M2 implementation notes (2026-10-07)
+
+M1 passed per maintainer report. M2 applies the recommended 3/6 group caps per
+verified character, with independently allowed alts. Durable sessions are included
+before product APIs: the temporary M1 probes cannot authorize groups. Scope expands
+only to `character refresh`; a new exact callback and deployment encryption key
+are needed. Hosted renewal remains a new M2 acceptance check. Category seeding is
+in M3 alongside its first inventory migration. See the [M2 guide](delivery/m2-install-test.md).

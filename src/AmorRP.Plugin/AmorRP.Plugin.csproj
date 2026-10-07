@@ -2,13 +2,15 @@
   <PropertyGroup>
     <AssemblyName>AmorRP</AssemblyName>
     <RootNamespace>AmorRP.Plugin</RootNamespace>
-    <Version>0.0.2.1</Version>
+    <Version>0.0.3.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Description>Roleplay currency and items in closed groups. M1 integration tests.</Description>
+    <Description>Roleplay currency and items in closed groups. M2 groups, permissions and currency.</Description>
     <PackageProjectUrl>https://github.com/Runmih/Amor-RP</PackageProjectUrl>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="../../licenses/AmorRP.licenses.json" Link="AmorRP.licenses.json" CopyToOutputDirectory="PreserveNewest" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.12" />
     <ProjectReference Include="../AmorRP.Contracts/AmorRP.Contracts.csproj" />
   </ItemGroup>
 </Project>

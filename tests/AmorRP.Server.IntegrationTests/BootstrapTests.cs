@@ -83,11 +83,11 @@ public sealed class BootstrapTests : IAsyncLifetime
         Assert.NotNull(result);
         Assert.Equal("1", result.ApiVersion);
         Assert.Empty(result.SupportedTypes);
-        Assert.Empty(result.GrantableCapabilities);
+        Assert.Equal(new[] { "currency.manage", "items.potion.create", "inventory.remove" }, result.GrantableCapabilities);
         Assert.Empty(result.ChatDestinationKinds);
         Assert.Equal(3, result.Limits.OwnedGroups);
         Assert.Equal(6, result.Limits.JoinedGroups);
-        Assert.Equal(HttpStatusCode.NotFound, (await client.PostAsync("/api/v1/groups", null, TestContext.Current.CancellationToken)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsync("/api/v1/groups", null, TestContext.Current.CancellationToken)).StatusCode);
     }
 
     [Fact]

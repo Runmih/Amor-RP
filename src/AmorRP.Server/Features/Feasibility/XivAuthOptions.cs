@@ -2,6 +2,13 @@ namespace AmorRP.Server.Features.Feasibility;
 
 public sealed class XivAuthOptions
 {
+    public bool DurableEnabled { get; set; }
+    public string DurableCallbackUrl { get; set; } = "";
+    public bool DurableIsValid() => !DurableEnabled || (!string.IsNullOrWhiteSpace(ClientId)
+        && !string.IsNullOrWhiteSpace(ClientSecret) && Uri.TryCreate(DurableCallbackUrl, UriKind.Absolute, out var url)
+        && url.Scheme == "https" && url.UserInfo.Length == 0 && url.Query.Length == 0
+        && url.Fragment.Length == 0 && url.AbsolutePath == "/auth/xivauth/callback");
+
     public bool Enabled { get; set; }
     public string ClientId { get; set; } = "";
     public string ClientSecret { get; set; } = "";
